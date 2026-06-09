@@ -233,7 +233,7 @@ def gain_bus(name, editor, pos, inputs):
 
 drum_conns  = gain_bus('DrumBus',  '_x0001_pe15', (-0.95, -0.3), ['Kick', 'Snare', 'HatClosed', 'HatOpen'])
 synth_conns = gain_bus('SynthBus', '_x0001_pe16', (-0.55, -0.3),
-                       ['Bass', 'Lead', ('Pad', 1638), 'Comp'])   # Pad -20 dB (warm 'Pad - Dark', still dominant)
+                       ['Bass', 'Lead', ('Pad', 652), 'Comp'])   # Pad -28 dB (from stem analysis: pad source clips, ~17 dB hot)
 
 # connections: drum + synth generators route to their bus; editors + buses -> Master.
 conns = (['_x0001_pe1', '_x0001_pe2', '_x0001_pe3', '_x0001_pe4', '_x0001_pe5',

@@ -1359,3 +1359,39 @@ swung chorus-only lead, a per-section-keyed kit, a pad trim, staggered presets).
 Out of scope for now (planned): per-section *rhythm* changes for a chord voice,
 a direct note-programmed lead (not via a Pedal Chord), and a `compose(spec)`
 wrapper. Tests: `tests/test_dsl.py`.
+
+## 18. Measurement-driven mixing (`rebuzz.mix`)
+
+Closes the render→measure→trim loop in code. Render each instrument to its own
+**pre-fader** stem (its natural level, before the gain bus), then:
+
+```python
+from rebuzz.mix import measure_stems, recommend_gains, format_report
+m = measure_stems({'kick':'01_kick.wav', ..., 'pad':'07_pad.wav'})
+print(format_report(m, recommend_gains(m)))           # levels + solved bus gains
+```
+
+`measure(path)` reports peak, RMS, **active RMS** (gated to when the instrument
+plays — stable across sparse vs sustained material), **LUFS** (K-weighted,
+BS.1770; uses scipy if present), spectral centroid, and **clip %**.
+`recommend_gains(meas, targets, basis, avoid_boost)` solves the per-input bus
+gains to hit a target balance: `gain = target - measured`, then (with
+`avoid_boost`) the whole mix is normalised so the loudest-needed stem sits at
+unity and the rest attenuate — no gain added, no Master clipping, raise Master
+to taste. CLI: `python3 src/mix_report.py <stem_dir>`.
+
+Two things it caught on Last Call that ear-mixing missed:
+1. **The pad clips at the source** (51% of samples at full scale) — so its
+   measured level is only a *lower bound*, and no downstream trim truly fixes the
+   overload. The proper fix is to reduce the synth (lower the invFFT preset
+   Volume); the bus trim (now −28 dB) is the stop-gap. `clip_pct > 1%` is
+   surfaced as a `SOURCE CLIPPING` note in the report.
+2. **Basis matters.** A sparse transient (the snare) reads quiet on any
+   integrated measure and can become the no-boost ceiling, skewing the absolute
+   recommendation. `basis=` (active_rms / lufs / peak / rms) and per-role
+   `targets=` are exposed so the balance can be tuned to the material; the
+   *relative* diagnosis (pad ~17 dB hot) is robust regardless.
+
+`rebuzz.mix` needs numpy (scipy optional for LUFS) and is deliberately not
+imported by `rebuzz/__init__`, so the core song-building package stays
+dependency-free. Tests: `tests/test_mix.py` (synthetic signals).

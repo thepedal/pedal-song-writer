@@ -137,6 +137,10 @@ The package surface (see each module's docstring):
 - **`rebuzz.validate`** — `validate(xml)` / `assert_valid(xml)` (structural +
   loop-safety checks; both builds run it before writing) and `decode_blob` for
   inspecting editor blobs. See notes §16. Tests: `python3 -m pytest tests/ -q`.
+- **`rebuzz.mix`** — measurement-driven gain-staging: measure pre-fader stems
+  (peak / active-RMS / LUFS / clip %) and solve the per-input bus gains for a
+  target balance. CLI `python3 src/mix_report.py <stem_dir>`. Needs numpy
+  (scipy optional). See notes 18.
 - **`rebuzz.theory`** / **`rebuzz.dsl`** — the composition DSL: write a song from
   `Song` / `Section` / `Chords` / `Arp` / `Drums` objects (scales, chord/arp
   codes, drum step-strings, arrangement, mix, presets) and `compile()` to a

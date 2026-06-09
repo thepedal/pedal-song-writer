@@ -6780,7 +6780,7 @@
                 </Value>
                 <Value>
                   <Track>2</Track>
-                  <Value>1638</Value>
+                  <Value>652</Value>
                 </Value>
                 <Value>
                   <Track>3</Track>
@@ -7668,7 +7668,7 @@
     <MachineConnection>
       <Source>Pad</Source>
       <Destination>SynthBus</Destination>
-      <Amp>1638</Amp>
+      <Amp>652</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>2</DestinationChannel>
