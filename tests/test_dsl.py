@@ -94,6 +94,36 @@ def test_demo_build_determinism():
     assert a == open(path, 'rb').read()
 
 
+def test_per_section_chord_rhythm():
+    # a dict rhythm is silent in sections it omits, and uses the named figure elsewhere
+    c = Chords('Comp', octave=3, chord='dom7', rhythm={'Verse': 'x.x.x.x.', 'Chorus': 'x.......'})
+    sc = Scale('A', 'blues')
+    assert c.colevents('Intro', ['A'], sc, 32) is None            # omitted -> silent
+    ce_v = c.colevents('Verse', ['A'], sc, 32)
+    assert [r for r, _ in ce_v[0]] == [0, 8, 16, 24]              # 8-step -> every 4 rows, 4 hits
+    ce_c = c.colevents('Chorus', ['A'], sc, 32)
+    assert [r for r, _ in ce_c[0]] == [0]                         # single downbeat
+
+
+def test_limiter_in_dsl():
+    s = (Song('LimTest', bpm=90, tpb=8, key='A', scale='blues')
+         .section('A', ['A', 'D', 'E', 'A'])
+         .add(Arp('Bass', octave=2, chord='dom7'))
+         .add(Drums({'Kick': 'x...x...'}))
+         .arrange(['A'])
+         .limiter(ceiling=-1.0, isp=True))
+    xml = s.compile()                                             # runs assert_valid
+    libs = [lib_of(b) for b in machine_blocks(xml)]
+    assert 'Pedal Limit' in libs
+    # both buses feed the limiter, and the limiter feeds Master
+    assert re.search(r'<Source>DrumBus</Source>\s*<Destination>Limit</Destination>', xml)
+    assert re.search(r'<Source>SynthBus</Source>\s*<Destination>Limit</Destination>', xml)
+    assert re.search(r'<Source>Limit</Source>\s*<Destination>Master</Destination>', xml)
+    # transparent: Threshold and Output both at the -1.0 dB ceiling (value 10)
+    lim = next(b for b in machine_blocks(xml) if lib_of(b) == 'Pedal Limit')
+    assert lim.count('<Value>10</Value>') >= 2
+
+
 if __name__ == '__main__':
     import traceback
     fails = 0

@@ -76,7 +76,9 @@ class _SynthVoice:
 
 
 class Chords(_SynthVoice):
-    """Block chords. `rhythm` is a one-bar step-string of strike positions."""
+    """Block chords. `rhythm` is a one-bar step-string of strike positions, or a
+    {section: step-string} dict for a per-section rhythm (a section absent from
+    the dict is silent — handy for stabs that change figure between parts)."""
     def __init__(self, slot, octave, chord='maj', rhythm='x', octaves=1, sections=None):
         super().__init__(slot, octave, sections)
         self.code = chord_code(chord)
@@ -86,7 +88,12 @@ class Chords(_SynthVoice):
     def colevents(self, section, roots, scale, bar):
         if not self.active(section):
             return None
-        rows = steps_to_rows(self.rhythm, bar)
+        rhythm = self.rhythm
+        if isinstance(rhythm, dict):                 # per-section rhythm; absent => silent
+            rhythm = rhythm.get(section)
+            if not rhythm:
+                return None
+        rows = steps_to_rows(rhythm, bar)
         col0, col2 = [], []
         for b, root in enumerate(roots):
             val = scale.value(root, self.octave)
@@ -156,6 +163,7 @@ class Song:
         self.bar = tpb * 4
         self._sections, self._voices, self._arrange = {}, [], []
         self._mix, self._presets = {}, {}
+        self._limiter = None
         self.refs = refs
 
     def section(self, name, roots, bars=None):
@@ -178,6 +186,14 @@ class Song:
         self._presets.update(slot_to_index)
         return self
 
+    def limiter(self, ceiling=-1.0, isp=True):
+        """Add a Pedal Limit as the final machine before Master: both submix
+        buses feed it, it feeds Master. Transparent by default — Threshold and
+        Output are both set to `ceiling` dBFS (no makeup gain), so it only
+        catches peaks. `isp` enables 4x true-peak (inter-sample) detection."""
+        self._limiter = dict(ceiling=ceiling, isp=isp)
+        return self
+
     # -- compile -------------------------------------------------------------
     def compile(self):
         return _Compiler(self).run()
@@ -193,6 +209,7 @@ class _Compiler:
         self.bar = song.bar
         here = os.path.dirname(os.path.abspath(__file__))
         refs = song.refs or os.environ.get('REBUZZ_REFS') or os.path.join(here, '..', '..', 'refs')
+        self.refs_dir = refs
         self.syn = read(os.path.join(refs, 'synthref.bmxml'))
         self.drm = read(os.path.join(refs, 'DrumTest.bmxml'))
         chd = read(os.path.join(refs, 'chordref.bmxml'))
@@ -203,6 +220,7 @@ class _Compiler:
                         if lib_of(b) == 'Modern Pattern Editor' and name_of(b) == '_x0001_pe3')
         self.GAIN = next(b for b in machine_blocks(gan) if lib_of(b) == 'Pedal Gain Multi')
         self.PRESETTER = next(b for b in machine_blocks(pre) if lib_of(b) == 'Pedal Presetter')
+        self.PLIM = None                               # lazily loaded if a limiter is requested
         self._pe = 6                                   # next free editor id (1-5 are synthref)
         self.blocks, self.seqs, self.editors = [], [], []
 
@@ -340,21 +358,28 @@ class _Compiler:
             self.editors.append(ped)
             self.seqs.append(('Presets', [(0, total, '00')]))
 
-        # ---- submix buses ----
+        # ---- submix buses (+ optional master limiter) ----
         conns = list(self.editors)
+        dest = 'Limit' if s._limiter else 'Master'
         if drum_used:
             conns += self._bus('DrumBus', PAT, total, (-0.95, -0.3),
-                               [(d, db_to_amp(s._mix[d]) if d in s._mix else 16384) for d in drum_used])
+                               [(d, db_to_amp(s._mix[d]) if d in s._mix else 16384) for d in drum_used],
+                               dest=dest)
         if used_synths:
             order_syn = [v.slot for v in synth_voices]
             conns += self._bus('SynthBus', PAT, total, (-0.55, -0.3),
                                [(slot, db_to_amp(s._mix[slot]) if slot in s._mix else 16384)
-                                for slot in order_syn])
+                                for slot in order_syn],
+                               dest=dest)
+        if s._limiter:
+            conns += self._limiter_block('Limit', PAT, total, (-0.75, -0.62),
+                                         s._limiter['ceiling'], s._limiter['isp'])
 
         # ---- finalise ----
         seq_order = (['Master'] + drum_used + [v.slot for v in synth_voices]
                      + [v.slot + 'Ctrl' for v in synth_voices]
-                     + (['Presets'] if s._presets else []) + ['DrumBus', 'SynthBus'])
+                     + (['Presets'] if s._presets else []) + ['DrumBus', 'SynthBus']
+                     + (['Limit'] if s._limiter else []))
         self.seqs.sort(key=lambda mp: seq_order.index(mp[0]) if mp[0] in seq_order else 999)
         out = splice(self.syn, machines_xml(self.blocks),
                      connections_xml_multi(conns), sequences_xml_multi(self.seqs))
@@ -364,7 +389,7 @@ class _Compiler:
         out = clear_held_notes(out)
         return assert_valid(out)
 
-    def _bus(self, name, PAT, total, pos, inputs):
+    def _bus(self, name, PAT, total, pos, inputs, dest='Master'):
         ped = self.pe()
         gb = set_param(set_patterns(set_editor(set_name(self.GAIN, 'PGainMul', name), ped), PAT),
                        'Amp', 16384)
@@ -375,5 +400,25 @@ class _Compiler:
         self.blocks.append(set_data(set_name(self.MPE, '_x0001_pe3', ped),
                                     build_blob_cols(name, '00', 8, {})))
         self.seqs.append((name, [(0, total, '00')]))
+        bus_out = name if dest == 'Master' else (name, dest, 16384, 16384, 0, 0)
         return ([(src, name, amp, 16384, 0, ch) for ch, (src, amp) in enumerate(inputs)]
-                + [name, ped])
+                + [bus_out, ped])
+
+    def _limiter_block(self, name, PAT, total, pos, ceiling, isp):
+        """Splice a Pedal Limit before Master. Threshold == Output == `ceiling`
+        (no makeup gain) = a transparent peak ceiling; buses sum at channel 0."""
+        if self.PLIM is None:
+            lmt = read(os.path.join(self.refs_dir, 'limitref.bmxml'))
+            self.PLIM = next(b for b in machine_blocks(lmt) if lib_of(b) == 'Pedal Limit')
+        ped = self.pe()
+        step = round(-ceiling * 10)                    # -0.1 dB/step; 0 = 0 dBFS
+        lm = set_name(self.PLIM, name_of(self.PLIM), name)
+        lm = set_patterns(set_editor(lm, ped), PAT)
+        lm = set_param(lm, 'Threshold', step)
+        lm = set_param(lm, 'Output_x0020_Level', step)
+        lm = set_param(lm, 'ISP', 1 if isp else 0)
+        self.blocks.append(set_position(lm, *pos))
+        self.blocks.append(set_data(set_name(self.MPE, '_x0001_pe3', ped),
+                                    build_blob_cols(name, '00', 3, {})))
+        self.seqs.append((name, [(0, total, '00')]))
+        return [name, ped]                             # Limit -> Master ; editor -> Master

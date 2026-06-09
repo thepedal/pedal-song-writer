@@ -1,5 +1,8 @@
 # rebuzz-songgen
 
+> New here? Read **[OVERVIEW.md](OVERVIEW.md)** first — the project map: how the
+> parts stack, the workflow loop, the invariants, and where to look for depth.
+
 Programmatic generation of **loadable ReBuzz `.bmxml` song files** from Python.
 
 ReBuzz stores playable notes not in the visible pattern XML but in base64-encoded
