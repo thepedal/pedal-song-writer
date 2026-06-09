@@ -27,10 +27,11 @@ OUT   = os.environ.get("REBUZZ_OUT")  or os.path.join(_HERE, "..", "songs", "Las
 def ref(name): return os.path.join(REFS, name)
 syn = read(ref('synthref.bmxml')); drm = read(ref('DrumTest.bmxml'))
 chd = read(ref('chordref.bmxml')); pre = read(ref('presetter_ref.bmxml'))
-gan = read(ref('gainref.bmxml'))
+gan = read(ref('gainref.bmxml')); lmt = read(ref('limitref.bmxml'))
 PRESETTER_TMPL = next(b for b in machine_blocks(pre) if lib_of(b) == 'Pedal Presetter')
 PDLCHRD_TMPL = next(b for b in machine_blocks(chd) if lib_of(b) == 'Pedal Chord')
 GAINMULTI_TMPL = next(b for b in machine_blocks(gan) if lib_of(b) == 'Pedal Gain Multi')
+PLIM_TMPL = next(b for b in machine_blocks(lmt) if lib_of(b) == 'Pedal Limit')
 MPE_TMPL = next(b for b in machine_blocks(chd)
                 if lib_of(b) == 'Modern Pattern Editor' and name_of(b) == '_x0001_pe3')
 sblocks = machine_blocks(syn); dblocks = machine_blocks(drm)
@@ -210,13 +211,14 @@ seqs.append(('Presets', [(0, TOTAL, '00')]))
 # input connection's Amp (16384 = unity) AND the machine's per-track Amp param,
 # which ReBuzz keeps in sync — both neutralised to unity so the mix is unchanged,
 # just bussed. Each bus gets its own empty 8-col editor pattern. (§15)
-def gain_bus(name, editor, pos, inputs):
+def gain_bus(name, editor, pos, inputs, dest='Master'):
     """Splice a Pedal Gain Multi as a submix bus. `inputs` is a list where each
     entry is `'src'` (unity) or `('src', amp)` (16384 = unity); position in the
     list is the input channel. The per-input gain is written to BOTH the input
     connection's Amp and the machine's per-track Amp param (kept in sync, as
-    ReBuzz stores a fader move). Appends the bus block + editor + sequence;
-    returns the connection specs (inputs + bus->Master + editor->Master)."""
+    ReBuzz stores a fader move). The bus output routes to `dest` (default Master,
+    or a limiter). Appends the bus block + editor + sequence; returns the
+    connection specs (inputs -> bus, bus -> dest, editor -> Master)."""
     chans = [(s, 16384) if isinstance(s, str) else s for s in inputs]
     gb = set_param(set_patterns(set_editor(set_name(GAINMULTI_TMPL, 'PGainMul', name),
                                             editor), PAT), 'Amp', 16384)   # all tracks unity
@@ -228,21 +230,43 @@ def gain_bus(name, editor, pos, inputs):
     final_blocks.append(set_data(set_name(MPE_TMPL, '_x0001_pe3', editor),
                                  build_blob_cols(name, '00', 8, {})))
     seqs.append((name, [(0, TOTAL, '00')]))
+    bus_out = name if dest == 'Master' else (name, dest, 16384, 16384, 0, 0)
     return ([(src, name, amp, 16384, 0, ch) for ch, (src, amp) in enumerate(chans)]
-            + [name, editor])                                  # bus + its editor -> Master
+            + [bus_out, editor])                          # bus -> dest ; editor -> Master
 
-drum_conns  = gain_bus('DrumBus',  '_x0001_pe15', (-0.95, -0.3), ['Kick', 'Snare', 'HatClosed', 'HatOpen'])
+
+def limiter(name, editor, pos, threshold_db, output_db, isp=True):
+    """Splice a Pedal Limit (look-ahead brickwall) as the final machine before
+    Master. Threshold/Output map at -0.1 dB/step (0 = 0 dBFS); Threshold == Output
+    means no makeup gain -- a transparent safety ceiling. Inputs sum at channel 0
+    (like Master). Returns [Limit -> Master, editor -> Master]."""
+    lm = set_name(PLIM_TMPL, name_of(PLIM_TMPL), name)
+    lm = set_patterns(set_editor(lm, editor), PAT)
+    lm = set_param(lm, 'Threshold', round(-threshold_db * 10))
+    lm = set_param(lm, 'Output_x0020_Level', round(-output_db * 10))
+    lm = set_param(lm, 'ISP', 1 if isp else 0)
+    final_blocks.append(set_position(lm, *pos))
+    final_blocks.append(set_data(set_name(MPE_TMPL, '_x0001_pe3', editor),
+                                 build_blob_cols(name, '00', 3, {})))
+    seqs.append((name, [(0, TOTAL, '00')]))
+    return [name, editor]                                 # Limit -> Master ; editor -> Master
+
+drum_conns  = gain_bus('DrumBus',  '_x0001_pe15', (-0.95, -0.3),
+                       ['Kick', 'Snare', 'HatClosed', 'HatOpen'], dest='Limit')
 synth_conns = gain_bus('SynthBus', '_x0001_pe16', (-0.55, -0.3),
-                       ['Bass', 'Lead', ('Pad', 652), 'Comp'])   # Pad -28 dB (from stem analysis: pad source clips, ~17 dB hot)
+                       ['Bass', 'Lead', ('Pad', 652), 'Comp'], dest='Limit')   # Pad -28 dB
+# Final brickwall safety limiter: both buses sum into it, it feeds Master.
+# Transparent true-peak ceiling for modern listening: -1.0 dBFS, ISP on, no makeup.
+lim_conns = limiter('Limit', '_x0001_pe17', (-0.75, -0.62), threshold_db=-1.0, output_db=-1.0, isp=True)
 
-# connections: drum + synth generators route to their bus; editors + buses -> Master.
+# connections: drum + synth generators -> bus; buses -> Limit; Limit + all editors -> Master.
 conns = (['_x0001_pe1', '_x0001_pe2', '_x0001_pe3', '_x0001_pe4', '_x0001_pe5',
           '_x0001_pe6', '_x0001_pe7', '_x0001_pe8', '_x0001_pe9',
           '_x0001_pe10', '_x0001_pe11', '_x0001_pe12', '_x0001_pe13', '_x0001_pe14']
-         + drum_conns + synth_conns)
+         + drum_conns + synth_conns + lim_conns)
 # order sequences as Master, drums, synths, chords, Presets, bus
 order = ['Master', 'Kick', 'Snare', 'HatClosed', 'HatOpen', 'Bass', 'Lead', 'Pad', 'Comp',
-         'PadChord', 'CompChord', 'LeadArp', 'BassArp', 'Presets', 'DrumBus', 'SynthBus']
+         'PadChord', 'CompChord', 'LeadArp', 'BassArp', 'Presets', 'DrumBus', 'SynthBus', 'Limit']
 seqs.sort(key=lambda mp: order.index(mp[0]))
 
 out = splice(syn, machines_xml(final_blocks), connections_xml_multi(conns), sequences_xml_multi(seqs))

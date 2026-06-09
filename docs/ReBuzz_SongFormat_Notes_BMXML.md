@@ -1395,3 +1395,34 @@ Two things it caught on Last Call that ear-mixing missed:
 `rebuzz.mix` needs numpy (scipy optional for LUFS) and is deliberately not
 imported by `rebuzz/__init__`, so the core song-building package stays
 dependency-free. Tests: `tests/test_mix.py` (synthetic signals).
+
+## 19. Master safety limiter (Pedal Limit)
+
+`Pedal Limit` is a managed Effect (look-ahead brickwall maximizer) spliced from
+`refs/limitref.bmxml`. Same archetype as Pedal Gain Multi: empty state blob
+(`02 00000000`), its own Modern Pattern Editor backend (a **3-column** empty
+pattern) plus a sequence entry, and it sums its inputs at channel 0 like Master.
+
+Parameters (all global, stored as a single Track-0 value, so `set_param` works):
+
+| Param | Type | Range | Meaning |
+|-------|------|-------|---------|
+| Amp | Word | 0–65534 (16384 = unity) | input gain |
+| Pan | Word | 0–32768 | pan |
+| Threshold | Byte | 0–200 @ **−0.1 dB/step** (0 = 0 dBFS) | brickwall ceiling; lower = drive harder |
+| Output Level | Byte | 0–200 @ −0.1 dB/step | final ceiling; makeup = Output/Threshold |
+| ISP | Byte | 0/1 | 4× cubic inter-sample (true-peak) detection |
+
+(The `Output Level` parameter name escapes to `Output_x0020_Level` in the XML.)
+Makeup gain is `Output/Threshold`, so **Threshold == Output gives no makeup** —
+a transparent safety ceiling that only caps peaks, leaving level and dynamics
+untouched. Use it as the final machine before Master.
+
+**Last Call** uses it as a true-peak safety net for modern listening: the two
+gain buses sum into `Limit` (ch 0), `Limit → Master`, set to **Threshold =
+Output = −1.0 dBFS (value 10), ISP on** — guaranteeing ≤ −1 dBTP into Master to
+avoid lossy-codec overshoot, without loudness maximisation. The `limiter()`
+helper in `build_lastcall.py` and the `dest=` argument added to `gain_bus()`
+make the bus → limiter → Master chain reusable. For more loudness/glue, lower
+Threshold below Output for `Output−Threshold` dB of makeup (e.g. Threshold −3,
+Output −1 → +2 dB).

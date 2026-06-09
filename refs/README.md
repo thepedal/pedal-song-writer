@@ -43,3 +43,4 @@ machines only by **name and parameter values** (like a DAW project file), not th
 machines themselves. The machines must be installed in ReBuzz for a generated
 song to load, and a target's preset bank (`.prs.xml`) must be present for preset
 indices to resolve.
+- `limitref.bmxml` — a Pedal Limit (look-ahead brickwall limiter) instance; template for the master safety limiter (notes 19).
