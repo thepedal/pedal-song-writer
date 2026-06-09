@@ -159,7 +159,10 @@ def validate(xml):
     events = {}                                   # machine -> {pattern: {(trk,col):[(row,val)]}}
     for b in blocks:
         if lib_of(b) == EDITOR_LIB:
-            d = decode_blob(_data_blob(b))
+            try:
+                d = decode_blob(_data_blob(b))
+            except Exception:
+                d = None                          # unparseable blob -> skip (don't crash validation)
             if d and d['mname']:
                 events.setdefault(d['mname'], {}).update(d['patterns'])
 

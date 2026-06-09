@@ -32,6 +32,15 @@ def machine_blocks(raw):
     return out
 
 
+def find_machine(xml, library, name=None):
+    """First <Machine> block with the given Library (and optional Name). Use to
+    splice any catalogued machine: find_machine(read('refs/MachineRef.bmxml'), 'Pedal EQ')."""
+    for b in machine_blocks(xml):
+        if lib_of(b) == library and (name is None or name_of(b) == name):
+            return b
+    return None
+
+
 def name_of(block):
     m = re.search(r'<Name>(.*?)</Name>\s*<Patterns', block, re.S)
     return m.group(1) if m else None
