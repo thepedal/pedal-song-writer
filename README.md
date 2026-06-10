@@ -1,6 +1,6 @@
 # rebuzz-songgen
 
-> New here? Read **[OVERVIEW.md](OVERVIEW.md)** first — the project map: how the
+> New here? Read **[ReBuzz_SongWriter_Notes_Overview.md](ReBuzz_SongWriter_Notes_Overview.md)** first — the project map: how the
 > parts stack, the workflow loop, the invariants, and where to look for depth.
 
 Programmatic generation of **loadable ReBuzz `.bmxml` song files** from Python.
