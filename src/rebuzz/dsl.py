@@ -253,6 +253,7 @@ class Song:
         self._mix, self._presets = {}, {}
         self._limiter = None
         self._extra_synths = []
+        self._fx = {}
         self.refs = refs
 
     def section(self, name, roots, bars=None):
@@ -269,6 +270,14 @@ class Song:
         its own Pedal Gain and accepts mix()/presets() like the built-in slots."""
         self._extra_synths.append(dict(name=name, library=library,
                                        note_col=note_col, tracks=tracks))
+        return self
+
+    def fx(self, slot, library, params=None):
+        """Insert an effect (spliced from MachineRef) into a synth's chain, between
+        the synth and its gain: synth -> fx -> Gain. Call more than once for the
+        same slot to build a serial chain (fx1 -> fx2 -> ...). `params` are the
+        effect's Global parameters by name (spaces allowed, e.g. 'Decay Time')."""
+        self._fx.setdefault(slot, []).append(dict(library=library, params=params or {}))
         return self
 
     def arrange(self, section_names):
@@ -329,6 +338,7 @@ def compose(spec):
       arrange    [section_name, ...]      — placement order on the timeline
       synths     [{name, library, note_col, tracks}]   — extra synths for melodies
       voices     [{type: 'chords'|'arp'|'drums'|'melody', ...}]   — fields per class
+      fx         {slot: {library, params} | [ ... ]}   — effect(s) before the slot's gain
       mix        {slot: dB}
       presets    {slot: bank_index}
       limiter    {ceiling, isp}
@@ -346,6 +356,9 @@ def compose(spec):
         s.synth(es['name'], es['library'], es['note_col'], es.get('tracks', 1))
     for v in spec.get('voices', []):
         s.add(_voice_from_spec(v))
+    for slot, fx in spec.get('fx', {}).items():
+        for eff in (fx if isinstance(fx, list) else [fx]):
+            s.fx(slot, eff['library'], eff.get('params'))
     if spec.get('arrange'):
         s.arrange(spec['arrange'])
     if spec.get('mix'):
@@ -579,6 +592,9 @@ class _Compiler:
         # Per-synth gains give a separate recordable output node per synth (stems)
         # and sum into the limiter (or Master) exactly as a shared bus would.
         order_syn = [v.slot for v in synth_voices] + extra_names
+        bad_fx = [slot for slot in s._fx if slot not in order_syn]
+        if bad_fx:
+            raise ValueError('fx on unknown synth slot(s) %s' % bad_fx)
         conns = list(self.editors)
         dest = 'Limit' if s._limiter else 'Master'
         if drum_used:
@@ -587,10 +603,22 @@ class _Compiler:
                                dest=dest)
         gain_pos = [(-0.5, -0.15), (-0.2, -0.15), (0.1, -0.15), (0.4, -0.15), (0.7, -0.15),
                     (-0.5, -0.45), (-0.2, -0.45), (0.1, -0.45), (0.4, -0.45), (0.7, -0.45)]
+        fx_names = {}
         for i, slot in enumerate(order_syn):
             amp = db_to_amp(s._mix[slot]) if slot in s._mix else 16384
+            src = slot
+            chain = s._fx.get(slot, [])
+            names = []
+            for j, eff in enumerate(chain):
+                fxname = '%sFx%s' % (slot, (j + 1) if len(chain) > 1 else '')
+                names.append(fxname)
+                conns += self._effect(fxname, PAT, total,
+                                      (gain_pos[i % len(gain_pos)][0], 0.08 + j * 0.14),
+                                      src, eff)
+                src = fxname
+            fx_names[slot] = names
             conns += self._gain('%sGain' % slot, PAT, total, gain_pos[i % len(gain_pos)],
-                                 slot, amp, dest)
+                                 src, amp, dest)
         if s._limiter:
             conns += self._limiter_block('Limit', PAT, total, (-0.75, -0.62),
                                          s._limiter['ceiling'], s._limiter['isp'])
@@ -599,7 +627,7 @@ class _Compiler:
         seq_order = (['Master'] + drum_used + [v.slot for v in synth_voices] + extra_names
                      + [v.slot + 'Ctrl' for v in synth_voices]
                      + (['Presets'] if s._presets else []) + ['DrumBus']
-                     + ['%sGain' % slot for slot in order_syn]
+                     + [n for slot in order_syn for n in fx_names.get(slot, []) + ['%sGain' % slot]]
                      + (['Limit'] if s._limiter else []))
         self.seqs.sort(key=lambda mp: seq_order.index(mp[0]) if mp[0] in seq_order else 999)
         out = splice(self.syn, machines_xml(self.blocks),
@@ -609,6 +637,30 @@ class _Compiler:
         out = rename_song(out, 'synthref', s.name)
         out = clear_held_notes(out)
         return assert_valid(out)
+
+    def _effect(self, name, PAT, total, pos, src, eff):
+        """Splice an effect (by Library) from MachineRef into the chain: `src` ->
+        this effect (unity), at `pos`. Its Global params are set by name (spaces
+        auto-escaped to the XML form). The outgoing wire (-> the next effect or the
+        gain) is added by the caller. Like the gains, its single Input track is
+        sized to one connection."""
+        if self.mref is None:
+            self.mref = read(os.path.join(self.refs_dir, 'MachineRef.bmxml'))
+        blk = find_machine(self.mref, eff['library'])
+        if blk is None:
+            raise ValueError('effect %r not in MachineRef' % eff['library'])
+        ped = self.pe()
+        fb = set_input_tracks(set_name(blk, name_of(blk), name), 1)
+        fb = set_patterns(set_editor(fb, ped), PAT)
+        for pname, pval in (eff.get('params') or {}).items():
+            fb = set_param(fb, pname.replace(' ', '_x0020_'), pval)
+        self.blocks.append(set_position(fb, *pos))
+        gg = re.search(r'<ParameterGroup>\s*<Type>Global</Type>.*?</ParameterGroup>', fb, re.S)
+        ncols = len(re.findall(r'<Parameter>', gg.group(0))) if gg else 1
+        self.blocks.append(set_data(set_name(self.MPE, '_x0001_pe3', ped),
+                                    build_blob_cols(name, '00', ncols, {})))
+        self.seqs.append((name, [(0, total, '00')]))
+        return [(src, name, 16384, 16384, 0, 0), ped]
 
     def _gain(self, name, PAT, total, pos, src, amp, dest):
         """One synth -> its own Pedal Gain -> `dest` (limiter or Master). The

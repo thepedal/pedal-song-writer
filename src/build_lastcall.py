@@ -88,6 +88,28 @@ LASTCALL_SPEC = {
     ],
 
     'arrange': ['Intro', 'Verse', 'Chorus', 'Verse', 'Mid8', 'Chorus', 'Outro'],
+
+    # Per-synth effects, inserted between each synth and its gain (Bass stays dry
+    # to keep the low end tight). Different effect per instrument, by role:
+    #   Pad   -> Chorus   : slow wide ensemble drift thickens the sustained bed
+    #   Comp  -> Plate    : short, bright plate ambience/tail on the EP stabs
+    #   Lead  -> Hallverb : a medium hall glues the busy arp + adds air (no extra
+    #                       note clutter, which a delay would add to a busy part)
+    #   Lead2 -> Delay    : a ~130 ms slapback fills space around the sparse, singing
+    #                       FM lead -- the bluesy echo idiom, low feedback (1-2 taps)
+    'fx': {
+        'Pad':   {'library': 'Pedal Chorus',
+                  'params': {'Rate': 18, 'Depth': 40, 'Spread': 90, 'Mix': 40}},
+        'Comp':  {'library': 'Pedal Plate',
+                  'params': {'Mix': 22, 'PreDelayMs': 10, 'Decay': 45,
+                             'Damping': 55, 'Size': 80, 'LowCut': 15}},
+        'Lead':  {'library': 'Pedal Hallverb',
+                  'params': {'Pre Delay': 25, 'Decay Time': 1800, 'Room Size': 70,
+                             'Damping': 45, 'Wet Level': 35}},
+        'Lead2': {'library': 'Pedal Dly PCM41',
+                  'params': {'Time Mode': 0, 'Delay': 130, 'Feedback': 18,
+                             'Mix': 24, 'HF Damp': 35}},
+    },
     'mix': {'Pad': -28},
     'presets': {'Bass': 0, 'Pad': 41, 'Lead': 44, 'Comp': 28, 'Lead2': 15},
     'limiter': {'ceiling': -1.0, 'isp': True},

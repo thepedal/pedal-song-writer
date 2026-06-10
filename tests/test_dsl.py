@@ -405,6 +405,57 @@ def test_lastcall_spec_round_trips():
         ['BassGain', 'CompGain', 'Lead2Gain', 'LeadGain', 'PadGain']
 
 
+def _edge(xml, src):
+    for c in re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S):
+        if re.search(r'<Source>%s</Source>' % src, c):
+            return re.search(r'<Destination>(.*?)</Destination>', c).group(1)
+
+
+def test_fx_inserted_before_gain():
+    from rebuzz import compose
+    spec = {
+        'name': 'Fx', 'bpm': 90, 'tpb': 8, 'key': 'A', 'scale': 'blues',
+        'sections': {'A': ['A', 'A', 'D', 'E']},
+        'voices': [{'type': 'arp', 'slot': 'Bass', 'octave': 2, 'chord': 'dom7'},
+                   {'type': 'chords', 'slot': 'Pad', 'octave': 4, 'chord': 'dom7'}],
+        'arrange': ['A'],
+        'fx': {'Pad': {'library': 'Pedal Chorus', 'params': {'Mix': 40, 'Rate': 18}}},
+    }
+    xml = compose(spec).compile()
+    assert validate(xml).ok
+    chorus = [b for b in machine_blocks(xml) if lib_of(b) == 'Pedal Chorus']
+    assert len(chorus) == 1 and name_of(chorus[0]) == 'PadFx'
+    g = re.search(r'<ParameterGroup>\s*<Type>Global</Type>.*?</ParameterGroup>', chorus[0], re.S).group(0)
+    mix = [p for p in re.findall(r'<Parameter>.*?</Parameter>', g, re.S) if '<Name>Mix</Name>' in p][0]
+    assert re.search(r'<Track>0</Track>\s*<Value>40</Value>', mix)        # param landed
+    assert _edge(xml, 'Pad') == 'PadFx' and _edge(xml, 'PadFx') == 'PadGain'
+    assert _edge(xml, 'Bass') == 'BassGain'                               # untreated synth stays dry
+
+
+def test_fx_serial_chain():
+    from rebuzz import Song, Chords
+    s = (Song('Chain', bpm=90, tpb=8, key='A', scale='blues')
+         .section('A', ['A', 'A', 'D', 'E']).add(Chords('Pad', octave=4, chord='dom7'))
+         .arrange(['A']))
+    s.fx('Pad', 'Pedal Chorus'); s.fx('Pad', 'Pedal Plate')              # two-effect chain
+    xml = s.compile()
+    assert validate(xml).ok
+    assert _edge(xml, 'Pad') == 'PadFx1'
+    assert _edge(xml, 'PadFx1') == 'PadFx2'
+    assert _edge(xml, 'PadFx2') == 'PadGain'
+
+
+def test_fx_bad_slot_rejected():
+    from rebuzz import compose
+    try:
+        compose({'name': 'X', 'sections': {'A': ['A']}, 'arrange': ['A'],
+                 'voices': [{'type': 'chords', 'slot': 'Pad', 'octave': 4}],
+                 'fx': {'Ghost': {'library': 'Pedal Chorus'}}}).compile()
+        assert False, 'expected ValueError for fx on unknown slot'
+    except ValueError:
+        pass
+
+
 if __name__ == '__main__':
     import traceback
     fails = 0
