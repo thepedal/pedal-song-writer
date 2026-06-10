@@ -943,42 +943,53 @@ distinct from the §2.5 *held-note* clear (which zeroes the **stored parameter**
 so nothing sounds on load) — the note-off is a **sequenced pattern event** that
 governs the **looping playback** entry point. Use both.
 
-#### 12.9.1 The generator-side companion rule (loop silence)
+#### 12.9.1 Releasing the target across silent sections and the loop
 
-The §12.9 note-off lives in the **Pedal Chord's** pattern. That is enough only
-when the Pedal Chord is **sequenced at tick 0** (Limani — one whole-song pattern).
-In a **sectioned** song (Last Call) a late-entering chord/arp is not sequenced
-until its section, so its row-0 note-off fires at the *section* start, never at
-song tick 0. On loop, nothing releases the voice the **target generator** held
-from the end of the song, and the synth drones over the next pass's intro.
+The §12.9 note-off keeps a late-entering voice silent *within* the pattern it
+opens. It does nothing once the Pedal Chord stops being **sequenced**: in a
+sectioned song the chord is only placed during the sections where its target
+plays, so when the target falls silent (a following section, or the loop wrap)
+nothing tells it to stop, and the held note **drones** over the next section or
+the next pass's intro.
 
-> **Rule (generators):** every held-note generator that receives **no note-on at
-> song tick 0** must carry a **note-off (255) on the `Note` column of *every*
-> track at row 0** of its own whole-song pattern. The generator's own pattern is
-> always sequenced from tick 0, so this fires on every loop regardless of how its
-> driving control is arranged.
+Two things are needed at the start of every section where the target should be
+silent, because they fix different halves of the problem:
 
-Generators that *do* get a root at tick 0 (Pad, Bass — their chords fire at bar 0)
-are **exempt**: they re-articulate cleanly on the loop, and a competing note-off
-at row 0 could cancel that fresh note-on. **Drums are exempt too** — one-shot
-percussion (Plaits) decays and cannot drone, and sectioned drums aren't all
-sequenced at tick 0. In practice the rule catches exactly the late-entering
-melodic/comping voices (Last Call & Limani: Lead + Comp ⇒ note-off on all 6
-tracks at row 0; Pad + Bass: none).
+1. **A note-off on the *target's own* pattern**, on every track. This releases
+   the voice that is **actually sounding**. It is the only thing that cuts a
+   patch with a **long release/sustain** — the control machine cannot shorten an
+   envelope it has already triggered.
+2. **A stop pattern on the *Pedal Chord*** — a single col-0 note-off, one row
+   long, sequenced at the same point. This halts any **further arpeggiation
+   triggers** so the arp doesn't keep firing into a section it shouldn't.
 
-Determine membership from content, not by hand — a generator triggers at tick 0
-iff its driver has a non-`255` event at (row 0, note column):
+> **Rule:** at the start of every silent section, give the target a row-0
+> note-off on every track **and** sequence a one-row stop pattern on its Pedal
+> Chord. A silent **first** section therefore gets both at song tick 0 — that is
+> what releases the target on the **loop**. A target that re-articulates at
+> tick 0 (Pad, Bass — their chord fires a root at bar 0) needs neither; **drums
+> are exempt** (one-shot Plaits can't drone).
+
+Mechanism 2 alone leaves a long tail ringing (the arp stops, but the last note
+decays for its full release); mechanism 1 alone re-triggers cleanly but lets the
+arp keep playing if the chord is still sequenced. Together they cover section
+entry, mid-song exit, and the loop wrap, and they never cut a voice that stays
+active across a boundary (a bridge running straight into a chorus), because that
+boundary is not a silent section.
 
 ```python
-TRIGGERS_AT_0 = {g for g, fn in drivers.items()
-                 if any(r == 0 and v != NOTE_OFF for r, v in row0_events(fn))}
-ev = {} if gen in TRIGGERS_AT_0 else \
-     {(t, notecol): [(0, NOTE_OFF)] for t in range(ntracks)}   # note-off, all tracks
-build_blob_mt(gen, '00', tcols, ntracks, ev)
+silent = [start*bar for name, start in arrangement if not plays_here(name)]
+# (1) target: note-off on every track at each silent-section start row
+synth_ev = {(t, notecol): [(r, NOTE_OFF) for r in silent] for t in range(ntracks)}
+# (2) chord: a one-row stop pattern, placed at each silent-section start
+STOP = '_stop'; pats.append((STOP, 1)); blobpats.append((STOP, ncols, {0: [(0, NOTE_OFF)]}))
+chord_placements = [(start*bar, sec_len, name) if plays_here(name)
+                    else (start*bar, 1, STOP) for name, start in arrangement]
 ```
 
-This complements §12.9 (keep both): the Pedal-Chord note-off cleans section
-entries *within* a pass; the generator note-off guarantees a clean **loop**.
+This complements §12.9 (keep all three): §12.9 cleans section entries *within* a
+pass; the target note-off + chord stop guarantee a clean exit and loop. Validator
+check 8 (§16) enforces both at tick 0.
 
 
 ### 12.10 Pedal Presetter — preset automation
@@ -1301,7 +1312,7 @@ The checks, and the section each enforces:
 | 5 | Stored Track `Note` values are `0` (nothing droning on load) | warn | §2.5 |
 | 6 | A visible machine sits inside the machine-view canvas | warn | §10 |
 | 7 | No two visible machines share a position | error | §10 |
-| 8 | A Pedal-Chord-driven generator with no note-on at tick 0 carries a row-0 note-off on **every** track | error | §12.9.1 |
+| 8 | A Pedal-Chord-driven target not re-triggered at tick 0 carries a row-0 note-off on **every** track **and** has its chord sequenced at tick 0 with a stop | error | §12.9.1 |
 
 Check 8 is the loop-drone guard. It decodes each Pedal Chord's `TargetMachine`
 (from the state blob) and its tick-0 placement; if no driver fires a root at song
@@ -1350,11 +1361,13 @@ Scales include major/minor and the modes plus hijaz, blues, and the pentatonics.
   on the bus, dB→amp), `presets(**{slot: index})`, then `compile()` →
   validated xml (or `write(path)`).
 
-The compiler computes which voices fire a root at tick 0 and applies the §12.9.1
-loop-safety note-offs automatically, prepends the §12.9 entry note-off to each
-Pedal Chord pattern, and runs `assert_valid` before returning. Worked example:
-`src/build_dsl_demo.py` (a short A-blues — arp bass, block pad, comped stabs, a
-swung chorus-only lead, a per-section-keyed kit, a pad trim, staggered presets).
+The compiler releases each control-driven target wherever it falls silent — a
+note-off on the target's own pattern plus a §12.9.1 stop pattern on its Pedal
+Chord (covering entry, exit, and the loop) — prepends the §12.9 entry note-off to
+each Pedal Chord pattern, and runs `assert_valid` before returning. Worked
+example: `src/build_dsl_demo.py` (a short A-blues — arp bass, block pad, comped
+stabs, a swung chorus-only lead, a per-section-keyed kit, a pad trim, staggered
+presets).
 
 Out of scope for now (planned): per-section *rhythm* changes for a chord voice,
 a direct note-programmed lead (not via a Pedal Chord), and a `compose(spec)`

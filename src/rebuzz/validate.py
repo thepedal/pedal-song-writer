@@ -10,9 +10,10 @@ Checks (errors unless noted):
   5. held note on load (warn)- stored Track Note values must be 0 (§2.5)
   6. off-canvas (warn)       - a visible machine sits outside the machine view
   7. machine overlap         - two visible machines share a position
-  8. loop drone              - a Pedal-Chord-driven generator that gets no note-on
-                               at tick 0 must carry a row-0 note-off on every track
-                               (§12.9.1), else it drones when the song loops
+  8. loop drone              - a Pedal-Chord-driven target not re-triggered at tick 0
+                               must carry a row-0 note-off on every track AND have its
+                               chord sequenced at tick 0 with a stop, else a long
+                               release drones on loop (§12.9.1)
 """
 import re, struct, base64
 from .blocks import machine_blocks, name_of, lib_of, machine_positions, assert_no_overlap
@@ -225,9 +226,15 @@ def validate(xml):
         rep.errors.append('machine overlap: %s' % e)
 
     # 8. loop drone (§12.9.1) -------------------------------------------------
-    # which generators are driven by a Pedal Chord, and does any driver fire a
-    # root note-on at song tick 0?
-    driven, retrig = {}, {}
+    # A control-driven target that isn't re-triggered at tick 0 must be released
+    # so it doesn't drone across the loop. Two things are required (belt and
+    # braces, because the chord's stop only halts new triggers -- a long release
+    # on the voice already sounding rides on unless the target itself is sent a
+    # note-off): (a) the target carries a row-0 note-off on every track of its
+    # tick-0 pattern, and (b) its Pedal Chord is sequenced at tick 0 with a stop
+    # (a row-0 note-off in col 0). Targets that re-articulate at tick 0 (a root
+    # at row 0) are exempt -- they restate cleanly on the loop.
+    driven, retrig, chord_stop0 = {}, {}, {}
     for b in blocks:
         if lib_of(b) != 'Pedal Chord':
             continue
@@ -235,34 +242,33 @@ def validate(xml):
         if not tgt:
             continue
         driven.setdefault(tgt, []).append(pc)
-        fires0 = False
         for (t, span, pat) in seqs.get(pc, []):
             if t != 0:
                 continue
             col0 = events.get(pc, {}).get(pat, {}).get((0, 0), [])
             if any(r == 0 and v != 255 for r, v in col0):
-                fires0 = True
-        retrig[tgt] = retrig.get(tgt, False) or fires0
+                retrig[tgt] = True
+            if any(r == 0 and v == 255 for r, v in col0):
+                chord_stop0[tgt] = True
 
-    for tgt, drivers in driven.items():
+    for tgt, drivers in sorted(driven.items()):
         if retrig.get(tgt):
             continue                              # re-articulates cleanly on loop
+        drv = '+'.join(sorted(drivers))
         tc = _track_count(by_name.get(tgt, '')) or 1
-        # pattern this target plays at tick 0
         t0 = [pat for (t, span, pat) in seqs.get(tgt, []) if t == 0]
-        if not t0:
-            rep.errors.append('loop drone: %s (driven by %s) gets no note-on at tick 0 and '
-                              'has no pattern sequenced at tick 0 to release it (§12.9.1)'
-                              % (tgt, '+'.join(drivers)))
-            continue
-        ev = events.get(tgt, {}).get(t0[0], {})
-        missing = [t for t in range(tc)
-                   if not any(r == 0 and v == 255 for r, v in
-                              [e for (trk, c), es in ev.items() if trk == t for e in es])]
-        if missing:
-            rep.errors.append('loop drone: %s (driven by %s) gets no note-on at tick 0 and is '
-                              'missing a row-0 note-off on track(s) %s of %d (§12.9.1) - it will '
-                              'drone on loop' % (tgt, '+'.join(drivers), missing, tc))
+        target_off = bool(t0) and all(
+            any(r == 0 and v == 255 for r, v in
+                [e for (trk, c), es in events.get(tgt, {}).get(t0[0], {}).items()
+                 if trk == t for e in es])
+            for t in range(tc))
+        if not target_off:
+            rep.errors.append('loop drone: %s (driven by %s) is not re-triggered at tick 0 and '
+                              'lacks a row-0 note-off on its own pattern (§12.9.1) - a long '
+                              'release will drone on loop' % (tgt, drv))
+        elif not chord_stop0.get(tgt):
+            rep.errors.append('loop drone: %s (driven by %s) has a tick-0 note-off but its Pedal '
+                              'Chord is not sequenced at tick 0 to stop triggers (§12.9.1)' % (tgt, drv))
     return rep
 
 

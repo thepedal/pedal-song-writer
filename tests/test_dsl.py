@@ -66,13 +66,28 @@ def _editor_events(xml):
     return ev
 
 
+def _placements(xml, machine):
+    for sq in re.findall(r'<Sequence>.*?</Sequence>', xml, re.S):
+        if re.search(r'<Machine>(.*?)</Machine>', sq).group(1) != machine:
+            continue
+        return sorted((int(re.search(r'<Time>(\d+)</Time>', e).group(1)),
+                       re.search(r'<Pattern>(.*?)</Pattern>', e).group(1))
+                      for e in re.findall(r'<Event>.*?</Event>', sq, re.S))
+    return []
+
+
 def test_loop_safety_applied():
-    ev = _editor_events(_demo().compile())
-    def offs(slot):
-        p = ev[slot]['00']
-        return sorted(t for (t, c), es in p.items() if any(r == 0 and v == 255 for r, v in es))
-    assert offs('Comp') == [0, 1, 2, 3, 4, 5]          # chorus-only -> released at tick 0
-    assert offs('Bass') == [] and offs('Pad') == []    # fire a root at tick 0 -> exempt
+    # both mechanisms at every silent section: a note-off on the target's own
+    # pattern (cuts a long release) AND a stop pattern on its Pedal Chord.
+    xml = _demo().compile()
+    comp_stops = sorted(t for t, p in _placements(xml, 'CompCtrl') if p == '_stop')
+    assert comp_stops == [0, 256]                       # Comp (chorus-only) stopped in both verses
+    ev = _editor_events(xml)
+    comp_offs = sorted({r for es in ev['Comp']['00'].values() for r, v in es if v == 255})
+    assert comp_offs == comp_stops                      # target note-offs coincide with chord stops
+    # Bass/Pad play every section -> re-trigger, so neither a stop nor a note-off
+    assert all(p != '_stop' for _, p in _placements(xml, 'BassCtrl'))
+    assert all(v != 255 for es in ev['Bass']['00'].values() for r, v in es)
 
 
 def test_mix_trim_on_correct_channel():
@@ -142,6 +157,62 @@ def test_drums_swing_applied():
     rw = [r for r, _ in swung.rows('HatClosed', 'V', 1, 32)]
     assert rs == [0, 4, 8, 12, 16, 20, 24, 28]
     assert rw == [0, 5, 8, 13, 16, 21, 24, 29]
+
+
+def test_voice_exit_release():
+    # a control-driven voice active only in a middle section is released both by
+    # a note-off on its own synth (cuts the sustaining voice) AND by a stop
+    # pattern on its Pedal Chord (halts triggers), at the same silent rows.
+    import base64
+    from rebuzz import decode_blob
+    s = (Song('Exit', bpm=90, tpb=8, key='A', scale='blues')
+         .section('A', ['A', 'A', 'A', 'A'])
+         .section('B', ['D', 'D', 'D', 'D'])
+         .add(Arp('Bass', octave=2, chord='dom7'))                  # tick-0 anchor, never exits
+         .add(Arp('Lead', octave=5, chord='dom7', sections=['B']))  # only in B
+         .arrange(['A', 'B', 'A']))                                 # B sandwiched between A's
+    xml = s.compile()
+    # A=4 bars: A@row0, B@row128, A@row256. Stop in both A's (incl. row 0 for
+    # entry/loop), B plays.
+    assert _placements(xml, 'LeadCtrl') == [(0, '_stop'), (128, 'B'), (256, '_stop')]
+    # and the Lead synth carries note-offs at the same silent rows
+    lead_offs = None
+    for b in machine_blocks(xml):
+        if lib_of(b) != 'Modern Pattern Editor':
+            continue
+        m = re.search(r'<Data>([A-Za-z0-9+/=]+)</Data>', b)
+        if not m:
+            continue
+        d = decode_blob(base64.b64decode(m.group(1)))
+        if d and d.get('mname') == 'Lead':
+            lead_offs = sorted({r for col in d['patterns'].get('00', {}).values()
+                                for r, v in col if v == 255})
+    assert lead_offs == [0, 256]                          # released at loop point and at the exit
+
+
+def test_voice_stays_active_not_cut():
+    # X -> Y, both lead-active and adjacent: neither a stop nor a note-off between
+    import base64
+    from rebuzz import decode_blob
+    s = (Song('Cut', bpm=90, tpb=8, key='A', scale='blues')
+         .section('I', ['A', 'A', 'A', 'A'])
+         .section('X', ['D', 'D', 'D', 'D'])
+         .section('Y', ['E', 'E', 'E', 'E'])
+         .add(Arp('Bass', octave=2, chord='dom7'))
+         .add(Arp('Lead', octave=5, chord='dom7', sections=['X', 'Y']))
+         .arrange(['I', 'X', 'Y', 'I']))                  # lead spans X,Y adjacent
+    xml = s.compile()
+    # stop in I (row 0, entry/loop) and the trailing I; X and Y play with no stop between
+    assert _placements(xml, 'LeadCtrl') == [(0, '_stop'), (128, 'X'), (256, 'Y'), (384, '_stop')]
+    lead_offs = None
+    for b in machine_blocks(xml):
+        if lib_of(b) == 'Modern Pattern Editor':
+            m = re.search(r'<Data>([A-Za-z0-9+/=]+)</Data>', b)
+            d = m and decode_blob(base64.b64decode(m.group(1)))
+            if d and d.get('mname') == 'Lead':
+                lead_offs = sorted({r for col in d['patterns'].get('00', {}).values()
+                                    for r, v in col if v == 255})
+    assert lead_offs == [0, 384]                          # silent I's only; nothing between X and Y
 
 
 if __name__ == '__main__':

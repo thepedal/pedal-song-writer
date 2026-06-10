@@ -84,8 +84,10 @@ subjective musical quality needs the human ear.
 
 1. **Splice, never fabricate** machine blocks (§1).
 2. **`assert_valid` before `write_bmxml`** — every build script does this.
-3. **Loop-safety** (notes §12.9.1): a held-note generator that gets no note-on at
-   song tick 0 carries a row-0 note-off on *every* track, or it drones on loop.
+3. **Loop-safety** (notes §12.9.1): wherever a control-driven voice falls silent,
+   release it two ways — a note-off on the target synth (cuts a long release) and
+   a one-row stop pattern on its Pedal Chord (halts further triggers), both at the
+   silent section's start (which also covers the loop wrap).
 4. **Gain-stage from measurement**, not by ear — and watch for *source* clipping
    (a clipped stem means no downstream trim can truly fix it).
 5. **Deterministic builds** — re-running a build yields identical bytes; tests

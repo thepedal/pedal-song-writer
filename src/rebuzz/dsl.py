@@ -33,6 +33,8 @@ from .song import (machines_xml, connections_xml_multi, sequences_xml_multi, spl
 from .validate import assert_valid
 
 HIT = 65                                              # Plaits trigger (C-4)
+STOP_PAT = '_stop'        # reserved chord pattern name: one note-off, releases the target
+STOP_ROWS = 1             # length (rows) of the stop pattern
 SYNTH_SLOTS = {'Bass': dict(tcols=[25], tracks=1, editor='_x0001_pe2'),
                'Lead': dict(tcols=[67, 68], tracks=6, editor='_x0001_pe3'),
                'Pad':  dict(tcols=[28], tracks=6, editor='_x0001_pe4'),
@@ -282,17 +284,23 @@ class _Compiler:
         PAT = pattern_xml('00', total)
         synth_voices = [v for v in s._voices if getattr(v, 'is_synth', False)]
         drum_voices = [v for v in s._voices if isinstance(v, Drums)]
+        if STOP_PAT in s._sections:
+            raise ValueError('section name %r is reserved' % STOP_PAT)
         used_synths = {v.slot for v in synth_voices}
         if len(used_synths) != len(synth_voices):
             raise ValueError('each synth slot may host only one voice')
 
-        # which synth voices fire a root at song tick 0 (first arranged section)?
-        first = arrange[0][0]
-
-        def fires_at_0(v):
-            ce = v.colevents(first, s._sections[first].roots, s.scale, bar)
-            return bool(ce) and any(r == 0 and val != NOTE_OFF for r, val in ce.get(0, []))
-        triggers0 = {v.slot for v in synth_voices if fires_at_0(v)}
+        # A control-driven target is released two ways at every section where it
+        # should fall silent (belt and braces): (1) a note-off on the target's
+        # OWN pattern releases the voice that is actually sounding -- essential
+        # when the patch has a long release/sustain, which the control machine
+        # cannot shorten once it has triggered the note; and (2) a stop pattern
+        # on its Pedal Chord halts any further triggers (added in the chord loop
+        # below). Both fire at the same rows: the start of each silent section.
+        def plays(v, sec):
+            return v.colevents(sec, s._sections[sec].roots, s.scale, bar) is not None
+        stop_rows = {v.slot: sorted(st * bar for nm, st in arrange if not plays(v, nm))
+                     for v in synth_voices}
 
         # ---- synthref: Master(tempo) + the used synths ----
         editor_to_slot = {c['editor']: slot for slot, c in SYNTH_SLOTS.items()}
@@ -311,12 +319,13 @@ class _Compiler:
                                                        SYNTH_SLOTS[nm]['tracks']))
                     self.blocks[-1] = set_position(self.blocks[-1], *_SYNTH_POS[nm])
                     self.seqs.append((nm, [(0, total, '00')]))
-            elif nm in editor_to_slot:                 # a synth editor
+            elif nm in editor_to_slot:                 # a synth editor: note-off where it falls silent
                 slot = editor_to_slot[nm]
                 if slot in used_synths:
                     c = SYNTH_SLOTS[slot]
-                    ev = {} if slot in triggers0 else \
-                        {(t, c['tcols'][0]): [(0, NOTE_OFF)] for t in range(c['tracks'])}
+                    offs = stop_rows.get(slot, [])
+                    ev = {(t, c['tcols'][0]): [(r, NOTE_OFF) for r in offs]
+                          for t in range(c['tracks'])} if offs else {}
                     self.blocks.append(set_data(b, build_blob_mt(slot, '00', c['tcols'],
                                                                  c['tracks'], ev)))
                     self.editors.append(nm)
@@ -363,7 +372,20 @@ class _Compiler:
                     ce = {**ce, 0: [(0, NOTE_OFF)] + list(col0)}
                 pats.append((nm, sec_bars[nm] * bar)); blobpats.append((nm, 14, ce))
             seen = {nm for nm, _ in pats}
-            plc = [(start * bar, sec_bars[nm] * bar, nm) for nm, start in arrange if nm in seen]
+            # Companion to the target's own note-offs (above): a short stop
+            # pattern (one note-off in col 0) sequenced at the start of every
+            # silent section halts further triggers. The target note-off frees
+            # the sounding voice; this stops the arp from re-triggering. Together
+            # they cover entry, mid-song exits, and the loop wrap.
+            if any(nm not in seen for nm, _ in arrange):
+                pats.append((STOP_PAT, STOP_ROWS))
+                blobpats.append((STOP_PAT, 14, {0: [(0, NOTE_OFF)]}))
+            plc = []
+            for nm, start in arrange:
+                if nm in seen:
+                    plc.append((start * bar, sec_bars[nm] * bar, nm))
+                else:
+                    plc.append((start * bar, STOP_ROWS, STOP_PAT))
             gb = set_position(set_data(set_patterns(set_editor(
                     set_name(self.PDLCHRD, 'PdlChrd', pcname), ped), patterns_xml(pats)),
                     pedal_chord_state(v.slot, 0)), *_CHORD_POS[v.slot])
