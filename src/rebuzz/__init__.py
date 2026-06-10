@@ -36,7 +36,7 @@ from .song import (
 from .validate import validate, assert_valid, ValidationError, Report, decode_blob
 
 from .theory import Scale, parse_note, chord_code, arp_mode
-from .dsl import Song, Section, Chords, Arp, Drums, steps_to_rows, db_to_amp
+from .dsl import Song, Section, Chords, Arp, Drums, steps_to_rows, swing_rows, db_to_amp
 
 __all__ = [
     'NOTE_OFF', 'note_value', 'b64',
@@ -48,7 +48,7 @@ __all__ = [
     'machine_positions', 'assert_no_overlap',
     'validate', 'assert_valid', 'ValidationError', 'Report', 'decode_blob',
     'Scale', 'parse_note', 'chord_code', 'arp_mode',
-    'Song', 'Section', 'Chords', 'Arp', 'Drums', 'steps_to_rows', 'db_to_amp',
+    'Song', 'Section', 'Chords', 'Arp', 'Drums', 'steps_to_rows', 'swing_rows', 'db_to_amp',
     'pedal_chord_state', 'pedal_chord_pattern',
     'presetter_state', 'presetter_clear_stored_presets',
     'connection', 'sequence', 'sequence_multi', 'machines_xml', 'connections_xml',

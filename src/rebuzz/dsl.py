@@ -55,6 +55,32 @@ def steps_to_rows(pattern, bar_rows):
     return [i * step for i, c in enumerate(pattern) if c not in '. ']
 
 
+_SWING_DIV = {'8th': 2, '8': 2, 'eighth': 2, '16th': 4, '16': 4, 'sixteenth': 4}
+
+
+def swing_rows(rows, beat_rows, swing=50, subdivision='8th'):
+    """Shuffle a set of straight row-offsets by delaying the *off-beats* of a
+    subdivision. `swing` is a DAW-style percentage: 50 = straight (returned
+    unchanged), ~67 = triplet shuffle, 75 = hard dotted feel. `subdivision` is
+    '8th' (default) or '16th'.
+
+    Only hits that land exactly on an off-beat of the subdivision move — the
+    'and' of each beat for 8th-swing. Downbeats, backbeats and anything off the
+    subdivision grid stay put, so the whole kit can share one `swing` value
+    without smearing the kick or the backbeat. At 8 rows/beat, straight eighths
+    0,4,8,12,16,20,24,28 at swing 67 become 0,5,8,13,16,21,24,29."""
+    if swing == 50:
+        return list(rows)
+    div = _SWING_DIV.get(str(subdivision).lower())
+    if div is None:
+        raise ValueError('subdivision must be 8th or 16th, got %r' % (subdivision,))
+    if beat_rows % div:
+        raise ValueError('a %d-row beat does not divide into %s notes' % (beat_rows, subdivision))
+    unit = beat_rows // div                       # rows per swung subdivision
+    delay = round((swing - 50) / 50.0 * unit)     # rows added to each off-beat
+    return [r + delay if (r % (2 * unit)) == unit else r for r in rows]
+
+
 def db_to_amp(db):
     return round(16384 * 10 ** (db / 20.0))
 
@@ -129,12 +155,16 @@ class Arp(_SynthVoice):
 class Drums:
     is_synth = False
 
-    def __init__(self, patterns):
-        """`patterns` = {drum_slot: step-string | {section: step-string}}."""
+    def __init__(self, patterns, swing=50, subdivision='8th'):
+        """`patterns` = {drum_slot: step-string | {section: step-string}}.
+        `swing` (DAW-style %, 50 = straight) and `subdivision` ('8th'/'16th')
+        shuffle the off-beats of every slot — see swing_rows()."""
         bad = set(patterns) - set(DRUM_SLOTS)
         if bad:
             raise ValueError('unknown drum slot(s) %s (have %s)' % (bad, ', '.join(DRUM_SLOTS)))
         self.patterns = patterns
+        self.swing = swing
+        self.subdivision = subdivision
 
     def rows(self, slot, section, bars, bar):
         spec = self.patterns.get(slot)
@@ -143,7 +173,7 @@ class Drums:
         s = spec.get(section) if isinstance(spec, dict) else spec
         if not s:
             return None
-        base = steps_to_rows(s, bar)
+        base = swing_rows(steps_to_rows(s, bar), bar // 4, self.swing, self.subdivision)
         return [(b * bar + r, HIT) for b in range(bars) for r in base]
 
 

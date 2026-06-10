@@ -10,12 +10,13 @@ sections + voices + arrangement + mix + presets + a master limiter. The
 compiler applies the loop-safety and §12.9 entry note-off rules and runs full
 validation before writing.
 
-Two honest simplifications vs the low-level build: the kit is straight-feel
-(the DSL has no per-hit swing or per-bar fills), and the grooves are
-per-section step-strings rather than the hand-tuned intro/fill/outro figures.
-Everything else carries over — the parts, the -28 dB pad trim from the stem
-analysis (the pad clips at source), the one-preset-per-row stagger, and the
--1 dBFS true-peak limiter, now folded into the DSL.
+One honest simplification vs the low-level build: the grooves are per-section
+step-strings rather than the hand-tuned intro/fill/outro figures (no per-bar
+fills yet). The shuffle feel is back, though — the kit swings its off-beat
+eighths (swing=67), which reproduces the low-level version's hand-placed hat
+rows exactly. Everything else carries over — the parts, the -28 dB pad trim
+from the stem analysis (the pad clips at source), the one-preset-per-row
+stagger, and the -1 dBFS true-peak limiter.
 """
 import os
 from rebuzz.dsl import Song, Chords, Arp, Drums
@@ -43,7 +44,7 @@ s.add(Chords('Comp', octave=3, chord='dom7', rhythm={                       # EP
 s.add(Arp('Lead', octave=5, chord='dom7', mode='updown', speed=4, octaves=2,
           swing=50, sections=['Chorus', 'Mid8']))                           # lead only in choruses + bridge
 
-# Straight-feel Plaits kit — per-section grooves (8 steps/bar = eighths).
+# Plaits kit — per-section grooves (8 steps/bar = eighths), triplet shuffle.
 s.add(Drums({
     'Kick':      {'Intro': 'x...x...', 'Verse': 'x...x...', 'Chorus': 'x...x..x',
                   'Mid8': 'x...x...', 'Outro': 'x...x...'},
@@ -52,7 +53,7 @@ s.add(Drums({
     'HatClosed': {'Intro': 'x.x.x.x.', 'Verse': 'xxxxxxxx', 'Chorus': 'xxxxxxxx',
                   'Mid8': 'xxxxxxxx', 'Outro': 'xxxxxxxx'},
     'HatOpen':   {'Chorus': '.......x', 'Mid8': '.......x'},                  # end-of-bar open accent
-}))
+}, swing=67))                                    # shuffle the off-beat eighths (matches the hand build)
 
 s.arrange(['Intro', 'Verse', 'Chorus', 'Verse', 'Mid8', 'Chorus', 'Outro'])
 s.mix(Pad=-28)                                  # pad bus trim from the stem analysis

@@ -124,6 +124,26 @@ def test_limiter_in_dsl():
     assert lim.count('<Value>10</Value>') >= 2
 
 
+def test_swing_rows():
+    from rebuzz import swing_rows
+    straight = [0, 4, 8, 12, 16, 20, 24, 28]
+    assert swing_rows(straight, 8, 50) == straight              # 50 = straight, no-op
+    assert swing_rows(straight, 8, 67) == [0, 5, 8, 13, 16, 21, 24, 29]   # triplet = hand-tuned hats
+    assert swing_rows([0, 8, 16, 24], 8, 67) == [0, 8, 16, 24]  # downbeats/backbeat untouched
+    assert swing_rows(straight, 8, 75) == [0, 6, 8, 14, 16, 22, 24, 30]   # hard shuffle
+    assert swing_rows([0, 2, 4, 6], 8, 67, '16th') == [0, 3, 4, 7]        # 16th off-beats
+
+
+def test_drums_swing_applied():
+    sc = Scale('A', 'blues')
+    straight = Drums({'HatClosed': 'xxxxxxxx'})
+    swung = Drums({'HatClosed': 'xxxxxxxx'}, swing=67)
+    rs = [r for r, _ in straight.rows('HatClosed', 'V', 1, 32)]
+    rw = [r for r, _ in swung.rows('HatClosed', 'V', 1, 32)]
+    assert rs == [0, 4, 8, 12, 16, 20, 24, 28]
+    assert rw == [0, 5, 8, 13, 16, 21, 24, 29]
+
+
 if __name__ == '__main__':
     import traceback
     fails = 0
