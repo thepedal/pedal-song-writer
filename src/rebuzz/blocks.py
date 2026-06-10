@@ -148,7 +148,7 @@ def set_input_tracks(block, n):
                 '\n                <Value>\n                  <Track>%d</Track>\n'
                 '                  <Value>%s</Value>\n                </Value>' % (k, vals.get(k, dv))
                 for k in range(n))
-            return re.sub(r'<Values>.*?</Values>',
+            return re.sub(r'<Values\s*/>|<Values>.*?</Values>',
                           '<Values>%s\n              </Values>' % body, seg, count=1, flags=re.S)
         g = re.sub(r'<Parameter>.*?</Parameter>', grow_param, gm.group(0), flags=re.S)
         return re.sub(r'<TrackCount>\d+</TrackCount>', '<TrackCount>%d</TrackCount>' % n, g, count=1)

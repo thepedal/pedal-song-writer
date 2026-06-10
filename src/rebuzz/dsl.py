@@ -265,8 +265,8 @@ class Song:
 
     def synth(self, name, library, note_col, tracks=1):
         """Register an extra synth (spliced from MachineRef by Library) to host a
-        Melody -- e.g. s.synth('Lead2', 'Pedal FM', note_col=42). It routes to
-        the SynthBus and accepts mix()/presets() like the built-in slots."""
+        Melody -- e.g. s.synth('Lead2', 'Pedal FM', note_col=42). It routes through
+        its own Pedal Gain and accepts mix()/presets() like the built-in slots."""
         self._extra_synths.append(dict(name=name, library=library,
                                        note_col=note_col, tracks=tracks))
         return self
@@ -284,10 +284,10 @@ class Song:
         return self
 
     def limiter(self, ceiling=-1.0, isp=True):
-        """Add a Pedal Limit as the final machine before Master: both submix
-        buses feed it, it feeds Master. Transparent by default — Threshold and
-        Output are both set to `ceiling` dBFS (no makeup gain), so it only
-        catches peaks. `isp` enables 4x true-peak (inter-sample) detection."""
+        """Add a Pedal Limit as the final machine before Master: the drum bus and
+        every per-synth gain feed it, it feeds Master. Transparent by default —
+        Threshold and Output are both set to `ceiling` dBFS (no makeup gain), so it
+        only catches peaks. `isp` enables 4x true-peak (inter-sample) detection."""
         self._limiter = dict(ceiling=ceiling, isp=isp)
         return self
 
@@ -298,6 +298,63 @@ class Song:
     def write(self, path):
         n = write_bmxml(path, self.compile())
         return n
+
+
+# ---- one-call commission entry point ---------------------------------------
+
+def _voice_from_spec(v):
+    """Map one voice dict to a voice object. Fields mirror the voice classes."""
+    t = v.get('type')
+    if t == 'chords':
+        return Chords(v['slot'], v['octave'], v.get('chord', 'maj'),
+                      v.get('rhythm', 'x'), v.get('octaves', 1), v.get('sections'))
+    if t == 'arp':
+        return Arp(v['slot'], v['octave'], v.get('chord', 'maj'), v.get('mode', 'up'),
+                   v.get('speed', 4), v.get('octaves', 2), v.get('swing', 0), v.get('sections'))
+    if t == 'drums':
+        return Drums(v['patterns'], v.get('swing', 50), v.get('subdivision', '8th'))
+    if t == 'melody':
+        phrases = {k: [tuple(n) for n in ph] for k, ph in (v.get('phrases') or {}).items()}
+        return Melody(v['slot'], v.get('octave', 5), phrases, v.get('grid', 16), v.get('sections'))
+    raise ValueError('unknown voice type %r' % (t,))
+
+
+def compose(spec):
+    """Build a Song from a single declarative spec dict — the 'spec -> song' goal
+    (BMXML §13) as one call, JSON-serialisable end to end.
+
+    Spec keys (all but `name` optional):
+      name, bpm, tpb, key, scale, refs   — the Song header
+      sections   {name: [roots...]}  or  {name: {'roots': [...], 'bars': N}}
+      arrange    [section_name, ...]      — placement order on the timeline
+      synths     [{name, library, note_col, tracks}]   — extra synths for melodies
+      voices     [{type: 'chords'|'arp'|'drums'|'melody', ...}]   — fields per class
+      mix        {slot: dB}
+      presets    {slot: bank_index}
+      limiter    {ceiling, isp}
+
+    Returns an un-compiled Song; call `.compile()` or `.write(path)`."""
+    s = Song(spec['name'], bpm=spec.get('bpm', 125), tpb=spec.get('tpb', 8),
+             key=spec.get('key', 'C'), scale=spec.get('scale', 'major'),
+             refs=spec.get('refs'))
+    for name, sec in spec.get('sections', {}).items():
+        if isinstance(sec, dict):
+            s.section(name, sec['roots'], sec.get('bars'))
+        else:
+            s.section(name, sec)
+    for es in spec.get('synths', []):
+        s.synth(es['name'], es['library'], es['note_col'], es.get('tracks', 1))
+    for v in spec.get('voices', []):
+        s.add(_voice_from_spec(v))
+    if spec.get('arrange'):
+        s.arrange(spec['arrange'])
+    if spec.get('mix'):
+        s.mix(**spec['mix'])
+    if spec.get('presets'):
+        s.presets(**spec['presets'])
+    if spec.get('limiter'):
+        s.limiter(**spec['limiter'])
+    return s
 
 
 class _Compiler:
@@ -318,6 +375,7 @@ class _Compiler:
         self.GAIN = next(b for b in machine_blocks(gan) if lib_of(b) == 'Pedal Gain Multi')
         self.PRESETTER = next(b for b in machine_blocks(pre) if lib_of(b) == 'Pedal Presetter')
         self.PLIM = None                               # lazily loaded if a limiter is requested
+        self.GAIN1 = None                              # single Pedal Gain (per-synth), lazily loaded
         self.mref = None                               # lazily loaded if extra synths are used
         self._pe = 6                                   # next free editor id (1-5 are synthref)
         self.blocks, self.seqs, self.editors = [], [], []
@@ -365,8 +423,17 @@ class _Compiler:
         # below). Both fire at the same rows: the start of each silent section.
         def plays(v, sec):
             return v.colevents(sec, s._sections[sec].roots, s.scale, bar) is not None
-        stop_rows = {v.slot: sorted(st * bar for nm, st in arrange if not plays(v, nm))
-                     for v in synth_voices}
+        nm0 = arrange[0][0]
+
+        def triggered_at_0(v):                         # does v strike a note on song row 0?
+            ce = v.colevents(nm0, s._sections[nm0].roots, s.scale, bar)
+            return ce is not None and any(r == 0 for r, _ in ce.get(0, []))
+        stop_rows = {}
+        for v in synth_voices:
+            rows = set(st * bar for nm, st in arrange if not plays(v, nm))
+            if not triggered_at_0(v):                   # silent OR first hit is mid-bar:
+                rows.add(0)                             # release on the loop wrap (§12.9.1)
+            stop_rows[v.slot] = sorted(rows)
 
         # ---- synthref: Master(tempo) + the used synths ----
         editor_to_slot = {c['editor']: slot for slot, c in SYNTH_SLOTS.items()}
@@ -508,19 +575,22 @@ class _Compiler:
             self.editors.append(ped)
             self.seqs.append(('Presets', [(0, total, '00')]))
 
-        # ---- submix buses (+ optional master limiter) ----
+        # ---- submix: drums on one Gain Multi, each synth on its own Pedal Gain ----
+        # Per-synth gains give a separate recordable output node per synth (stems)
+        # and sum into the limiter (or Master) exactly as a shared bus would.
+        order_syn = [v.slot for v in synth_voices] + extra_names
         conns = list(self.editors)
         dest = 'Limit' if s._limiter else 'Master'
         if drum_used:
             conns += self._bus('DrumBus', PAT, total, (-0.95, -0.3),
                                [(d, db_to_amp(s._mix[d]) if d in s._mix else 16384) for d in drum_used],
                                dest=dest)
-        if used_synths or extra_names:
-            order_syn = [v.slot for v in synth_voices] + extra_names
-            conns += self._bus('SynthBus', PAT, total, (-0.55, -0.3),
-                               [(slot, db_to_amp(s._mix[slot]) if slot in s._mix else 16384)
-                                for slot in order_syn],
-                               dest=dest)
+        gain_pos = [(-0.5, -0.15), (-0.2, -0.15), (0.1, -0.15), (0.4, -0.15), (0.7, -0.15),
+                    (-0.5, -0.45), (-0.2, -0.45), (0.1, -0.45), (0.4, -0.45), (0.7, -0.45)]
+        for i, slot in enumerate(order_syn):
+            amp = db_to_amp(s._mix[slot]) if slot in s._mix else 16384
+            conns += self._gain('%sGain' % slot, PAT, total, gain_pos[i % len(gain_pos)],
+                                 slot, amp, dest)
         if s._limiter:
             conns += self._limiter_block('Limit', PAT, total, (-0.75, -0.62),
                                          s._limiter['ceiling'], s._limiter['isp'])
@@ -528,7 +598,8 @@ class _Compiler:
         # ---- finalise ----
         seq_order = (['Master'] + drum_used + [v.slot for v in synth_voices] + extra_names
                      + [v.slot + 'Ctrl' for v in synth_voices]
-                     + (['Presets'] if s._presets else []) + ['DrumBus', 'SynthBus']
+                     + (['Presets'] if s._presets else []) + ['DrumBus']
+                     + ['%sGain' % slot for slot in order_syn]
                      + (['Limit'] if s._limiter else []))
         self.seqs.sort(key=lambda mp: seq_order.index(mp[0]) if mp[0] in seq_order else 999)
         out = splice(self.syn, machines_xml(self.blocks),
@@ -538,6 +609,25 @@ class _Compiler:
         out = rename_song(out, 'synthref', s.name)
         out = clear_held_notes(out)
         return assert_valid(out)
+
+    def _gain(self, name, PAT, total, pos, src, amp, dest):
+        """One synth -> its own Pedal Gain -> `dest` (limiter or Master). The
+        synth's mix trim sits on the Gain's single input Amp (16384 = unity),
+        kept equal on the connection -- same scheme as a Gain Multi channel, but
+        each synth now has a dedicated, recordable output node for stems."""
+        if self.GAIN1 is None:
+            if self.mref is None:
+                self.mref = read(os.path.join(self.refs_dir, 'MachineRef.bmxml'))
+            self.GAIN1 = find_machine(self.mref, 'Pedal Gain')
+        ped = self.pe()
+        gb = set_input_tracks(set_name(self.GAIN1, name_of(self.GAIN1), name), 1)
+        gb = set_param(set_patterns(set_editor(gb, ped), PAT), 'Amp', amp)
+        self.blocks.append(set_position(gb, *pos))
+        self.blocks.append(set_data(set_name(self.MPE, '_x0001_pe3', ped),
+                                    build_blob_cols(name, '00', 3, {})))   # Gain/Mute/Inertia
+        self.seqs.append((name, [(0, total, '00')]))
+        out = name if dest == 'Master' else (name, dest, 16384, 16384, 0, 0)
+        return [(src, name, amp, 16384, 0, 0), out, ped]
 
     def _bus(self, name, PAT, total, pos, inputs, dest='Master'):
         ped = self.pe()

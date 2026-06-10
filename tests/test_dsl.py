@@ -90,13 +90,38 @@ def test_loop_safety_applied():
     assert all(v != 255 for es in ev['Bass']['00'].values() for r, v in es)
 
 
-def test_mix_trim_on_correct_channel():
+def test_mix_trim_on_its_own_gain():
+    # each synth now has its own Pedal Gain; the trim sits on that gain's input
+    # Amp (machine + connection, kept equal), not on a shared bus channel.
     xml = _demo().compile()
-    sb = [b for b in machine_blocks(xml) if re.search(r'<Name>SynthBus</Name>', b)][0]
-    seg = [x for x in re.findall(r'<Parameter>.*?</Parameter>', sb, re.S) if '<Name>Amp</Name>' in x][0]
-    amps = dict((int(t), int(v)) for t, v in
-                re.findall(r'<Track>(\d+)</Track>\s*<Value>(\d+)</Value>', seg))
-    assert amps[1] == 2914 and amps[0] == 16384        # Pad is channel 1 (Bass, Pad, Comp)
+    pad = [b for b in machine_blocks(xml)
+           if lib_of(b) == 'Pedal Gain' and re.search(r'<Name>PadGain</Name>', b)][0]
+    ig = re.search(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>', pad, re.S).group(0)
+    amp = [p for p in re.findall(r'<Parameter>.*?</Parameter>', ig, re.S) if '<Name>Amp</Name>' in p][0]
+    val = dict((int(t), int(v)) for t, v in
+               re.findall(r'<Track>(\d+)</Track>\s*<Value>(-?\d+)</Value>', amp))
+    assert val == {0: 2914}                                # -15 dB on PadGain only
+    # an untrimmed synth's gain stays unity
+    bass = [b for b in machine_blocks(xml)
+            if lib_of(b) == 'Pedal Gain' and re.search(r'<Name>BassGain</Name>', b)][0]
+    bamp = re.search(r'<Track>0</Track>\s*<Value>(-?\d+)</Value>', bass).group(1)
+    assert bamp == '16384'
+
+
+def test_synths_route_through_own_gain_to_dest():
+    # no synth Gain Multi remains; each synth -> its Pedal Gain -> dest
+    xml = _demo().compile()
+    gm = [name_of(b) for b in machine_blocks(xml) if lib_of(b) == 'Pedal Gain Multi']
+    assert gm == ['DrumBus']                               # only drums keep a multi
+    pg = sorted(name_of(b) for b in machine_blocks(xml) if lib_of(b) == 'Pedal Gain')
+    assert pg == ['BassGain', 'CompGain', 'PadGain']       # one per synth slot (_demo has no limiter)
+    conns = re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S)
+
+    def edge(src):
+        for c in conns:
+            if re.search(r'<Source>%s</Source>' % src, c):
+                return re.search(r'<Destination>(.*?)</Destination>', c).group(1)
+    assert edge('Pad') == 'PadGain' and edge('PadGain') == 'Master'   # no limiter in _demo
 
 
 def test_demo_build_determinism():
@@ -130,9 +155,9 @@ def test_limiter_in_dsl():
     xml = s.compile()                                             # runs assert_valid
     libs = [lib_of(b) for b in machine_blocks(xml)]
     assert 'Pedal Limit' in libs
-    # both buses feed the limiter, and the limiter feeds Master
+    # drums via their bus and the synth via its own Pedal Gain both feed the limiter
     assert re.search(r'<Source>DrumBus</Source>\s*<Destination>Limit</Destination>', xml)
-    assert re.search(r'<Source>SynthBus</Source>\s*<Destination>Limit</Destination>', xml)
+    assert re.search(r'<Source>BassGain</Source>\s*<Destination>Limit</Destination>', xml)
     assert re.search(r'<Source>Limit</Source>\s*<Destination>Master</Destination>', xml)
     # transparent: Threshold and Output both at the -1.0 dB ceiling (value 10)
     lim = next(b for b in machine_blocks(xml) if lib_of(b) == 'Pedal Limit')
@@ -231,10 +256,11 @@ def test_melody_synth_spliced_and_routed():
     assert validate(xml).ok
     # the FM machine is present under the requested name
     assert any(lib_of(b) == 'Pedal FM' and name_of(b) == 'Lead2' for b in machine_blocks(xml))
-    # routed to the SynthBus on the channel after the synthref slots
+    # routed through its own Pedal Gain (no limiter in this song -> on to Master)
     conns = re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S)
     lead2 = [c for c in conns if re.search(r'<Source>Lead2</Source>', c)]
-    assert lead2 and re.search(r'<Destination>SynthBus</Destination>', lead2[0])
+    assert lead2 and re.search(r'<Destination>Lead2Gain</Destination>', lead2[0])
+    assert any(lib_of(b) == 'Pedal Gain' and name_of(b) == 'Lead2Gain' for b in machine_blocks(xml))
 
 
 def test_melody_notes_in_note_column_only():
@@ -251,16 +277,24 @@ def test_melody_notes_in_note_column_only():
 
 
 def test_bus_grows_to_input_count():
-    # SynthBus carries Pad + Lead2 = 2 inputs -> Input TrackCount must match
-    xml = _melody_song().compile()
-    sb = [b for b in machine_blocks(xml) if re.search(r'<Name>SynthBus</Name>', b)][0]
-    ig = re.search(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>', sb, re.S).group(0)
+    # DrumBus (Gain Multi) sizes its Input group to its drum count...
+    xml = _melody_song().compile()       # 1 drum slot? -> use a multi-input drum song
+    s = Song('B', bpm=90, tpb=8, key='A', scale='blues')
+    s.section('V', ['A', 'A', 'D', 'E'])
+    s.add(Drums({'Kick': 'x...x...', 'Snare': '..x...x.', 'HatClosed': 'xxxxxxxx'}))
+    s.arrange(['V'])
+    xml = s.compile()
+    db = [b for b in machine_blocks(xml) if re.search(r'<Name>DrumBus</Name>', b)][0]
+    ig = re.search(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>', db, re.S).group(0)
     tc = int(re.search(r'<TrackCount>(\d+)</TrackCount>', ig).group(1))
     nin = len([c for c in re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S)
-               if re.search(r'<Destination>SynthBus</Destination>', c)])
-    assert tc == nin == 2
-    amp = [p for p in re.findall(r'<Parameter>.*?</Parameter>', ig, re.S) if '<Name>Amp</Name>' in p][0]
-    assert sorted(int(t) for t in re.findall(r'<Track>(\d+)</Track>', amp)) == [0, 1]
+               if re.search(r'<Destination>DrumBus</Destination>', c)])
+    assert tc == nin == 3
+    # ...and a single Pedal Gain sizes its Input group to exactly one track
+    xml2 = _melody_song().compile()
+    pg = [b for b in machine_blocks(xml2) if lib_of(b) == 'Pedal Gain'][0]
+    ig2 = re.search(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>', pg, re.S).group(0)
+    assert int(re.search(r'<TrackCount>(\d+)</TrackCount>', ig2).group(1)) == 1
 
 
 def test_melody_slot_needs_registration():
@@ -272,6 +306,103 @@ def test_melody_slot_needs_registration():
         s.compile(); assert False, 'expected ValueError for unregistered Melody slot'
     except ValueError:
         pass
+
+
+def _demo_spec():
+    # the exact declarative twin of _demo()
+    return {
+        'name': 'T', 'bpm': 90, 'tpb': 8, 'key': 'A', 'scale': 'blues',
+        'sections': {'Verse': ['A', 'A', 'D', 'E'], 'Chorus': ['D', 'D', 'A', 'E']},
+        'voices': [
+            {'type': 'arp', 'slot': 'Bass', 'octave': 2, 'chord': 'dom7',
+             'mode': 'up', 'speed': 8, 'octaves': 2},
+            {'type': 'chords', 'slot': 'Pad', 'octave': 4, 'chord': 'dom7'},
+            {'type': 'chords', 'slot': 'Comp', 'octave': 3, 'chord': 'dom7',
+             'rhythm': 'x...x...x...x...', 'sections': ['Chorus']},
+            {'type': 'drums', 'patterns': {'Kick': 'x.......x.......', 'HatClosed': 'xxxxxxxx'}},
+        ],
+        'arrange': ['Verse', 'Chorus', 'Verse'],
+        'mix': {'Pad': -15},
+    }
+
+
+def test_compose_matches_fluent():
+    from rebuzz import compose
+    assert compose(_demo_spec()).compile() == _demo().compile()    # byte-identical mapping
+
+
+def test_compose_full_features():
+    # one spec exercising every voice type + extra synth + melody + limiter + presets
+    from rebuzz import compose
+    spec = {
+        'name': 'Full', 'bpm': 100, 'tpb': 8, 'key': 'A', 'scale': 'blues',
+        'sections': {'A': ['A', 'A', 'D', 'E'], 'B': ['D', 'D', 'A', 'E']},
+        'synths': [{'name': 'Lead2', 'library': 'Pedal FM', 'note_col': 42}],
+        'voices': [
+            {'type': 'arp', 'slot': 'Bass', 'octave': 2, 'chord': 'dom7'},
+            {'type': 'chords', 'slot': 'Pad', 'octave': 4, 'chord': 'dom7'},
+            {'type': 'chords', 'slot': 'Comp', 'octave': 3, 'chord': 'dom7',
+             'rhythm': {'A': 'x.x.x.x.', 'B': 'x.......'}},
+            {'type': 'drums', 'patterns': {'Kick': 'x...x...', 'Snare': '..x...x.'}, 'swing': 67},
+            {'type': 'melody', 'slot': 'Lead2', 'octave': 5, 'grid': 16,
+             'phrases': {'A': [[0, 'A5', 2], [4, 'C6', 2], [8, 'E5', 4]]}},
+        ],
+        'arrange': ['A', 'B', 'A'],
+        'mix': {'Pad': -20}, 'presets': {'Bass': 0, 'Lead2': 15},
+        'limiter': {'ceiling': -1.0, 'isp': True},
+    }
+    s = compose(spec)
+    xml = s.compile()
+    assert validate(xml).ok
+    assert s.compile() == xml                                      # deterministic
+    # the extra synth, its gain, and the limiter all made it in
+    libs = [lib_of(b) for b in machine_blocks(xml)]
+    assert 'Pedal FM' in libs and 'Pedal Limit' in libs
+    assert any(name_of(b) == 'Lead2Gain' for b in machine_blocks(xml) if lib_of(b) == 'Pedal Gain')
+
+
+def test_compose_unknown_voice():
+    from rebuzz import compose
+    try:
+        compose({'name': 'X', 'sections': {'A': ['A']}, 'arrange': ['A'],
+                 'voices': [{'type': 'glockenspiel', 'slot': 'Pad'}]}).compile()
+        assert False, 'expected ValueError for unknown voice type'
+    except ValueError:
+        pass
+
+
+def test_loop_safety_first_section_late_hit():
+    # a voice active in the FIRST section but whose first strike is mid-bar must
+    # still get a row-0 release on its own pattern, else it drones on the loop wrap
+    s = Song('Late', bpm=90, tpb=8, key='A', scale='blues')
+    s.section('V', ['A', 'A', 'D', 'E'])
+    s.add(Chords('Comp', octave=3, chord='dom7', rhythm='..x...x.'))   # no row-0 hit
+    s.arrange(['V'])
+    xml = s.compile()                                  # compiles only if loop-safe
+    assert validate(xml).ok
+    got0 = False
+    for b in machine_blocks(xml):
+        if lib_of(b) == 'Modern Pattern Editor':
+            m = re.search(r'<Data>([A-Za-z0-9+/=]+)</Data>', b)
+            d = m and decode_blob(base64.b64decode(m.group(1)))
+            if d and d.get('mname') == 'Comp':
+                got0 = any(r == 0 and v == 255
+                           for col in d['patterns']['00'].values() for r, v in col)
+    assert got0
+
+
+def test_lastcall_spec_round_trips():
+    import json
+    import importlib
+    from rebuzz import compose
+    spec = importlib.import_module('build_lastcall').LASTCALL_SPEC
+    xml = compose(json.loads(json.dumps(spec))).compile()      # full JSON round-trip
+    assert validate(xml).ok
+    # both leads survive the spec, each on its own gain (guards the 'leads lost' regression)
+    assert any(lib_of(b) == 'Pedal Faze-R' and name_of(b) == 'Lead' for b in machine_blocks(xml))
+    assert any(lib_of(b) == 'Pedal FM' and name_of(b) == 'Lead2' for b in machine_blocks(xml))
+    assert sorted(name_of(b) for b in machine_blocks(xml) if lib_of(b) == 'Pedal Gain') == \
+        ['BassGain', 'CompGain', 'Lead2Gain', 'LeadGain', 'PadGain']
 
 
 if __name__ == '__main__':

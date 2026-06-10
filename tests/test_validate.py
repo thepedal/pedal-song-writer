@@ -58,9 +58,11 @@ def test_dangling_connection_caught():
 
 
 def test_duplicate_channel_caught():
+    # synths each have their own gain now; the surviving multi-input bus is DrumBus.
+    # Collide Snare (ch1) onto Kick (ch0) and the channel check must fire.
     broken = re.sub(
-        r'(<Source>Comp</Source>\s*<Destination>SynthBus</Destination>.*?<DestinationChannel>)3(</DestinationChannel>)',
-        r'\g<1>2\g<2>', _load(SONGS[0]), count=1, flags=re.S)
+        r'(<Source>Snare</Source>\s*<Destination>DrumBus</Destination>.*?<DestinationChannel>)1(</DestinationChannel>)',
+        r'\g<1>0\g<2>', _load(SONGS[0]), count=1, flags=re.S)
     assert any('channel' in e for e in _errs(broken))
 
 

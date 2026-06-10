@@ -17,11 +17,12 @@ Two worked examples ship in `songs/`:
 - **"Limani"** — D-Hijaz, 60 BPM, ~64 s, 28 machines (a 4-piece drum kit played
   directly, four synths each driven by a Pedal Chord control machine, a Pedal
   Presetter setting timbres). One pattern per machine — the simplest shape.
-- **"Last Call"** — swung A-blues, 90 BPM, ~2:08, with the drums and the synths
-  each routed through their own **Pedal Gain Multi submix bus** (§15). The drums
-  and Pedal Chords carry **one named pattern per section** (Intro / Verse /
-  Chorus / Mid8 / Outro) placed on the timeline, with Verse and Chorus reused at
-  both occurrences — the navigable, multi-pattern shape (§14).
+- **"Last Call"** — swung A-blues, 90 BPM, ~2:08, with the drums summed on a
+  **Pedal Gain Multi** bus and each synth on its own **Pedal Gain** (§15), all
+  feeding a master limiter. The drums and Pedal Chords carry **one named pattern
+  per section** (Intro / Verse / Chorus / Mid8 / Outro) placed on the timeline,
+  with Verse and Chorus reused at both occurrences — the navigable, multi-pattern
+  shape (§14).
 
 ## Layout
 

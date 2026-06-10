@@ -6694,10 +6694,10 @@
       <IsBypassed>false</IsBypassed>
     </Machine>
     <Machine>
-      <Library>Pedal Gain Multi</Library>
+      <Library>Pedal Gain</Library>
       <Data>AgAAAAA=</Data>
       <EditorMachine>_x0001_pe16</EditorMachine>
-      <Name>SynthBus</Name>
+      <Name>BassGain</Name>
       <Patterns>
         <Pattern>
           <Name>00</Name>
@@ -6713,18 +6713,6 @@
               <Values>
                 <Value>
                   <Track>0</Track>
-                  <Value>16384</Value>
-                </Value>
-                <Value>
-                  <Track>1</Track>
-                  <Value>2914</Value>
-                </Value>
-                <Value>
-                  <Track>2</Track>
-                  <Value>16384</Value>
-                </Value>
-                <Value>
-                  <Track>3</Track>
                   <Value>16384</Value>
                 </Value>
               </Values>
@@ -6743,18 +6731,6 @@
                   <Track>0</Track>
                   <Value>16384</Value>
                 </Value>
-                <Value>
-                  <Track>1</Track>
-                  <Value>16384</Value>
-                </Value>
-                <Value>
-                  <Track>2</Track>
-                  <Value>16384</Value>
-                </Value>
-                <Value>
-                  <Track>3</Track>
-                  <Value>16384</Value>
-                </Value>
               </Values>
               <Type>Word</Type>
               <Name>Pan</Name>
@@ -6766,7 +6742,7 @@
               <DefValue>16384</DefValue>
             </Parameter>
           </Parameters>
-          <TrackCount>4</TrackCount>
+          <TrackCount>1</TrackCount>
         </ParameterGroup>
         <ParameterGroup>
           <Type>Global</Type>
@@ -6780,7 +6756,7 @@
               </Values>
               <Type>Byte</Type>
               <Name>Gain</Name>
-              <Description>Output_x0020_gain_x0020_in_x0020_percent._x0020_100_x0020__x003D__x0020_unity_x0020__x0028_0_x0020_dB_x0029__x002C__x0020_200_x0020__x003D__x0020__x002B_6_x0020_dB.</Description>
+              <Description>Output_x0020_level_x0020_in_x0020_percent_x0020__x0028_100_x0020__x003D__x0020_unity_x0020__x002F__x0020_0_x0020_dB_x002C__x0020_200_x0020__x003D__x0020__x002B_6_x0020_dB_x0029_</Description>
               <MinValue>0</MinValue>
               <MaxValue>200</MaxValue>
               <NoValue>255</NoValue>
@@ -6794,105 +6770,101 @@
                   <Value>0</Value>
                 </Value>
               </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_1</Name>
-              <Description>Solo_x0020_input_x0020_1</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_2</Name>
-              <Description>Solo_x0020_input_x0020_2</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_3</Name>
-              <Description>Solo_x0020_input_x0020_3</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_4</Name>
-              <Description>Solo_x0020_input_x0020_4</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_5</Name>
-              <Description>Solo_x0020_input_x0020_5</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
-              <Name>Solo_x0020_6</Name>
-              <Description>Solo_x0020_input_x0020_6</Description>
-              <MinValue>0</MinValue>
-              <MaxValue>1</MaxValue>
-              <NoValue>255</NoValue>
-              <Flags>State</Flags>
-              <DefValue>0</DefValue>
-            </Parameter>
-            <Parameter>
-              <Values>
-                <Value>
-                  <Track>0</Track>
-                  <Value>0</Value>
-                </Value>
-              </Values>
-              <Type>Switch</Type>
+              <Type>Byte</Type>
               <Name>Mute</Name>
-              <Description>Mute_x0020_the_x0020_output_x0020__x0028_with_x0020__x007E_25_x0020_ms_x0020_fade_x0020_in_x002F_out_x0029_</Description>
+              <Description>Silence_x0020_the_x0020_output</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>20</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Inertia</Name>
+              <Description>Fade_x0020_time_x0020_in_x0020_ms_x0020_when_x0020_Mute_x0020_is_x0020_toggled_x0020__x0028_0_x0020__x003D__x0020_instant_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>500</MaxValue>
+              <NoValue>65535</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Effect</Type>
+      <X>-0.5</X>
+      <Y>-0.15</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Modern Pattern Editor</Library>
+      <Data>/wGLAAAAAQAAADAwAAQAAAAEAAAAAwAAAEJhc3NHYWluAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQmFzc0dhaW4AAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABCYXNzR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe16</Name>
+      <Patterns />
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Switch</Type>
+              <Name>Dummy</Name>
+              <Description>Dummy</Description>
               <MinValue>0</MinValue>
               <MaxValue>1</MaxValue>
               <NoValue>255</NoValue>
@@ -6909,9 +6881,134 @@
         </ParameterGroup>
       </ParameterGroups>
       <Attributes />
+      <Type>Generator</Type>
+      <X>0</X>
+      <Y>0</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Pedal Gain</Library>
+      <Data>AgAAAAA=</Data>
+      <EditorMachine>_x0001_pe17</EditorMachine>
+      <Name>PadGain</Name>
+      <Patterns>
+        <Pattern>
+          <Name>00</Name>
+          <Length>640</Length>
+          <Columns />
+        </Pattern>
+      </Patterns>
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>2914</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Gain</Name>
+              <Description>Output_x0020_level_x0020_in_x0020_percent_x0020__x0028_100_x0020__x003D__x0020_unity_x0020__x002F__x0020_0_x0020_dB_x002C__x0020_200_x0020__x003D__x0020__x002B_6_x0020_dB_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>200</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Mute</Name>
+              <Description>Silence_x0020_the_x0020_output</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>20</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Inertia</Name>
+              <Description>Fade_x0020_time_x0020_in_x0020_ms_x0020_when_x0020_Mute_x0020_is_x0020_toggled_x0020__x0028_0_x0020__x003D__x0020_instant_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>500</MaxValue>
+              <NoValue>65535</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
       <Type>Effect</Type>
-      <X>-0.55</X>
-      <Y>-0.3</Y>
+      <X>-0.2</X>
+      <Y>-0.15</Y>
       <IsMuted>false</IsMuted>
       <MIDIInputChannel>-1</MIDIInputChannel>
       <OverrideLatency>-1</OverrideLatency>
@@ -6924,8 +7021,410 @@
     </Machine>
     <Machine>
       <Library>Modern Pattern Editor</Library>
-      <Data>/wFJAQAAAQAAADAwAAQAAAAEAAAACAAAAFN5bnRoQnVzAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMAAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABTeW50aEJ1cwACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFN5bnRoQnVzAAMAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMABAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABTeW50aEJ1cwAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFN5bnRoQnVzAAYAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMABwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAAA=</Data>
-      <Name>_x0001_pe16</Name>
+      <Data>/wGIAAAAAQAAADAwAAQAAAAEAAAAAwAAAFBhZEdhaW4AAAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABQYWRHYWluAAEAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAUGFkR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe17</Name>
+      <Patterns />
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Switch</Type>
+              <Name>Dummy</Name>
+              <Description>Dummy</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Generator</Type>
+      <X>0</X>
+      <Y>0</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Pedal Gain</Library>
+      <Data>AgAAAAA=</Data>
+      <EditorMachine>_x0001_pe18</EditorMachine>
+      <Name>CompGain</Name>
+      <Patterns>
+        <Pattern>
+          <Name>00</Name>
+          <Length>640</Length>
+          <Columns />
+        </Pattern>
+      </Patterns>
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Gain</Name>
+              <Description>Output_x0020_level_x0020_in_x0020_percent_x0020__x0028_100_x0020__x003D__x0020_unity_x0020__x002F__x0020_0_x0020_dB_x002C__x0020_200_x0020__x003D__x0020__x002B_6_x0020_dB_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>200</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Mute</Name>
+              <Description>Silence_x0020_the_x0020_output</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>20</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Inertia</Name>
+              <Description>Fade_x0020_time_x0020_in_x0020_ms_x0020_when_x0020_Mute_x0020_is_x0020_toggled_x0020__x0028_0_x0020__x003D__x0020_instant_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>500</MaxValue>
+              <NoValue>65535</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Effect</Type>
+      <X>0.1</X>
+      <Y>-0.15</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Modern Pattern Editor</Library>
+      <Data>/wGLAAAAAQAAADAwAAQAAAAEAAAAAwAAAENvbXBHYWluAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEdhaW4AAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe18</Name>
+      <Patterns />
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Switch</Type>
+              <Name>Dummy</Name>
+              <Description>Dummy</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Generator</Type>
+      <X>0</X>
+      <Y>0</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Pedal Gain</Library>
+      <Data>AgAAAAA=</Data>
+      <EditorMachine>_x0001_pe19</EditorMachine>
+      <Name>LeadGain</Name>
+      <Patterns>
+        <Pattern>
+          <Name>00</Name>
+          <Length>640</Length>
+          <Columns />
+        </Pattern>
+      </Patterns>
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Gain</Name>
+              <Description>Output_x0020_level_x0020_in_x0020_percent_x0020__x0028_100_x0020__x003D__x0020_unity_x0020__x002F__x0020_0_x0020_dB_x002C__x0020_200_x0020__x003D__x0020__x002B_6_x0020_dB_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>200</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Mute</Name>
+              <Description>Silence_x0020_the_x0020_output</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>20</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Inertia</Name>
+              <Description>Fade_x0020_time_x0020_in_x0020_ms_x0020_when_x0020_Mute_x0020_is_x0020_toggled_x0020__x0028_0_x0020__x003D__x0020_instant_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>500</MaxValue>
+              <NoValue>65535</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Effect</Type>
+      <X>0.4</X>
+      <Y>-0.15</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Modern Pattern Editor</Library>
+      <Data>/wGLAAAAAQAAADAwAAQAAAAEAAAAAwAAAExlYWRHYWluAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZEdhaW4AAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe19</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -7376,7 +7875,43 @@
           <Pattern>00</Pattern>
         </Event>
       </Events>
-      <Machine>SynthBus</Machine>
+      <Machine>BassGain</Machine>
+      <IsDisabled>false</IsDisabled>
+    </Sequence>
+    <Sequence>
+      <Events>
+        <Event>
+          <Time>0</Time>
+          <Type>PlayPattern</Type>
+          <Span>640</Span>
+          <Pattern>00</Pattern>
+        </Event>
+      </Events>
+      <Machine>PadGain</Machine>
+      <IsDisabled>false</IsDisabled>
+    </Sequence>
+    <Sequence>
+      <Events>
+        <Event>
+          <Time>0</Time>
+          <Type>PlayPattern</Type>
+          <Span>640</Span>
+          <Pattern>00</Pattern>
+        </Event>
+      </Events>
+      <Machine>CompGain</Machine>
+      <IsDisabled>false</IsDisabled>
+    </Sequence>
+    <Sequence>
+      <Events>
+        <Event>
+          <Time>0</Time>
+          <Type>PlayPattern</Type>
+          <Span>640</Span>
+          <Pattern>00</Pattern>
+        </Event>
+      </Events>
+      <Machine>LeadGain</Machine>
       <IsDisabled>false</IsDisabled>
     </Sequence>
   </Sequences>
@@ -7544,38 +8079,14 @@
     </MachineConnection>
     <MachineConnection>
       <Source>Bass</Source>
-      <Destination>SynthBus</Destination>
+      <Destination>BassGain</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>Pad</Source>
-      <Destination>SynthBus</Destination>
-      <Amp>2914</Amp>
-      <Pan>16384</Pan>
-      <SourceChannel>0</SourceChannel>
-      <DestinationChannel>1</DestinationChannel>
-    </MachineConnection>
-    <MachineConnection>
-      <Source>Comp</Source>
-      <Destination>SynthBus</Destination>
-      <Amp>16384</Amp>
-      <Pan>16384</Pan>
-      <SourceChannel>0</SourceChannel>
-      <DestinationChannel>2</DestinationChannel>
-    </MachineConnection>
-    <MachineConnection>
-      <Source>Lead</Source>
-      <Destination>SynthBus</Destination>
-      <Amp>16384</Amp>
-      <Pan>16384</Pan>
-      <SourceChannel>0</SourceChannel>
-      <DestinationChannel>3</DestinationChannel>
-    </MachineConnection>
-    <MachineConnection>
-      <Source>SynthBus</Source>
+      <Source>BassGain</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -7584,6 +8095,78 @@
     </MachineConnection>
     <MachineConnection>
       <Source>_x0001_pe16</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>Pad</Source>
+      <Destination>PadGain</Destination>
+      <Amp>2914</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>PadGain</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>_x0001_pe17</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>Comp</Source>
+      <Destination>CompGain</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>CompGain</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>_x0001_pe18</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>Lead</Source>
+      <Destination>LeadGain</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>LeadGain</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>_x0001_pe19</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
