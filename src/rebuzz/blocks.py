@@ -130,6 +130,32 @@ def set_param_track(block, name, track, value):
     return re.sub(r'<Parameter>.*?</Parameter>', repl, block, flags=re.S)
 
 
+def set_input_tracks(block, n):
+    """Resize a Pedal Gain Multi's `<Type>Input</Type>` group to exactly `n`
+    per-connection tracks. Each Input parameter (Amp, Pan) gets one
+    `<Value><Track>k</Track>...` for k in 0..n-1 -- existing values kept, new
+    tracks filled from the parameter's `<DefValue>` (unity) -- and the group's
+    `<TrackCount>` is set to `n`. Needed when a bus carries more inputs than the
+    spliced template was saved with (e.g. a 5th synth channel)."""
+    def grow_group(gm):
+        def grow_param(pm):
+            seg = pm.group(0)
+            vals = dict((int(t), v) for t, v in
+                        re.findall(r'<Track>(\d+)</Track>\s*<Value>(-?\d+)</Value>', seg))
+            dv = re.search(r'<DefValue>(-?\d+)</DefValue>', seg)
+            dv = dv.group(1) if dv else '0'
+            body = ''.join(
+                '\n                <Value>\n                  <Track>%d</Track>\n'
+                '                  <Value>%s</Value>\n                </Value>' % (k, vals.get(k, dv))
+                for k in range(n))
+            return re.sub(r'<Values>.*?</Values>',
+                          '<Values>%s\n              </Values>' % body, seg, count=1, flags=re.S)
+        g = re.sub(r'<Parameter>.*?</Parameter>', grow_param, gm.group(0), flags=re.S)
+        return re.sub(r'<TrackCount>\d+</TrackCount>', '<TrackCount>%d</TrackCount>' % n, g, count=1)
+    return re.sub(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>',
+                  grow_group, block, count=1, flags=re.S)
+
+
 def machine_positions(xml, ignore_libs=('Modern Pattern Editor',)):
     """[(name, x, y), ...] for every *visible* machine in an assembled song.
     Editor backends (Modern Pattern Editor) sit at 0,0 by design and are skipped.

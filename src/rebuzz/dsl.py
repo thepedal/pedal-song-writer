@@ -21,12 +21,13 @@ selects a slot by name; unused slots are dropped from the file.
     xml = s.compile()            # validated bmxml string
 """
 import os
-from .theory import Scale, chord_code, arp_mode
-from .blob import (note_value as nv, NOTE_OFF,
+import re
+from .theory import Scale, chord_code, arp_mode, parse_note
+from .blob import (note_value as nv, NOTE_OFF, note_value,
                    build_blob, build_blob_mt, build_blob_cols, build_blob_cols_multi)
-from .blocks import (read, machine_blocks, name_of, lib_of, pattern_xml, patterns_xml,
+from .blocks import (read, machine_blocks, name_of, lib_of, find_machine, pattern_xml, patterns_xml,
                      set_patterns, set_data, set_track_count, set_position, set_name,
-                     set_editor, set_param, set_param_track)
+                     set_editor, set_param, set_param_track, set_input_tracks)
 from .control import pedal_chord_state, presetter_state, presetter_clear_stored_presets
 from .song import (machines_xml, connections_xml_multi, sequences_xml_multi, splice,
                    set_loop_song_end, set_tempo, rename_song, clear_held_notes, write_bmxml)
@@ -179,6 +180,61 @@ class Drums:
         return [(b * bar + r, HIT) for b in range(bars) for r in base]
 
 
+_TOKEN = re.compile(r'^([A-Ga-g][#b]?)(-?\d+)?$')
+
+
+class Melody:
+    """A real, monophonic melodic line written straight into a synth's pattern
+    (note-ons + note-offs), with no Pedal Chord. `phrases` maps a section name to
+    a list of (step, note, length): `step` and `length` are in grid units (16th
+    notes by default, so 16 steps per bar), counted from the start of the
+    section; `note` is a token like 'A5', 'C#6', 'Eb5', or bare 'A' (which uses
+    the voice's default `octave`). Targets an extra synth registered with
+    Song.synth() -- not one of the four synthref slots."""
+    is_synth = False
+    is_melody = True
+
+    def __init__(self, slot, octave=5, phrases=None, grid=16, sections=None):
+        self.slot = slot
+        self.octave = octave
+        self.phrases = phrases or {}
+        self.grid = grid
+        self.sections = set(sections) if sections else None
+
+    def active(self, section):
+        if self.sections is not None and section not in self.sections:
+            return False
+        return bool(self.phrases.get(section))
+
+    def _pitch(self, token):
+        m = _TOKEN.match(token.strip())
+        if not m:
+            raise ValueError('bad note token %r (want e.g. A5, C#6, Eb5, or A)' % token)
+        octv = int(m.group(2)) if m.group(2) is not None else self.octave
+        return note_value(octv, parse_note(m.group(1)))
+
+    def column_events(self, arrange, bar, total):
+        """Resolve phrases over the arrangement into (row, value) note events for
+        the synth's note column. On a mono synth a fresh note-on cuts the
+        previous note, so note-offs are emitted only at rests / phrase ends /
+        the start of a silent section -- never where a new note retriggers."""
+        if bar % self.grid:
+            raise ValueError('grid %d must divide the bar (%d rows)' % (self.grid, bar))
+        rps = bar // self.grid
+        ons, offs = [], set()
+        for nm, start in arrange:
+            base = start * bar
+            if self.active(nm):
+                for step, token, length in self.phrases[nm]:
+                    ons.append((base + step * rps, self._pitch(token)))
+                    offs.add(base + (step + length) * rps)      # natural release
+            else:
+                offs.add(base)                                  # release entering a silent section
+        on_rows = {r for r, _ in ons}
+        offs = {r for r in offs if r not in on_rows and 0 <= r < total}
+        return sorted(ons + [(r, NOTE_OFF) for r in offs])
+
+
 # ---- section + song ---------------------------------------------------------
 
 class Section:
@@ -196,6 +252,7 @@ class Song:
         self._sections, self._voices, self._arrange = {}, [], []
         self._mix, self._presets = {}, {}
         self._limiter = None
+        self._extra_synths = []
         self.refs = refs
 
     def section(self, name, roots, bars=None):
@@ -204,6 +261,14 @@ class Song:
 
     def add(self, voice):
         self._voices.append(voice)
+        return self
+
+    def synth(self, name, library, note_col, tracks=1):
+        """Register an extra synth (spliced from MachineRef by Library) to host a
+        Melody -- e.g. s.synth('Lead2', 'Pedal FM', note_col=42). It routes to
+        the SynthBus and accepts mix()/presets() like the built-in slots."""
+        self._extra_synths.append(dict(name=name, library=library,
+                                       note_col=note_col, tracks=tracks))
         return self
 
     def arrange(self, section_names):
@@ -253,6 +318,7 @@ class _Compiler:
         self.GAIN = next(b for b in machine_blocks(gan) if lib_of(b) == 'Pedal Gain Multi')
         self.PRESETTER = next(b for b in machine_blocks(pre) if lib_of(b) == 'Pedal Presetter')
         self.PLIM = None                               # lazily loaded if a limiter is requested
+        self.mref = None                               # lazily loaded if extra synths are used
         self._pe = 6                                   # next free editor id (1-5 are synthref)
         self.blocks, self.seqs, self.editors = [], [], []
 
@@ -395,9 +461,41 @@ class _Compiler:
             self.editors.append(ped)
             self.seqs.append((pcname, plc))
 
+        # ---- extra synths (direct-note melodies, spliced from MachineRef) ----
+        melody_voices = [v for v in s._voices if getattr(v, 'is_melody', False)]
+        extra_names = []
+        if s._extra_synths:
+            if self.mref is None:
+                self.mref = read(os.path.join(self.refs_dir, 'MachineRef.bmxml'))
+            extra_pos = [(0.45, 0.25), (0.45, -0.05), (-0.85, 0.25), (-0.85, -0.05)]
+            taken = {es['name'] for es in s._extra_synths}
+            if taken & (set(SYNTH_SLOTS) | set(DRUM_SLOTS)):
+                raise ValueError('extra synth name collides with a built-in slot')
+            for i, es in enumerate(s._extra_synths):
+                name = es['name']; extra_names.append(name)
+                gen = find_machine(self.mref, es['library'])
+                if gen is None:
+                    raise ValueError('machine %r not in MachineRef' % es['library'])
+                ped = self.pe()
+                gb = set_position(set_track_count(set_patterns(set_editor(
+                        set_name(gen, name_of(gen), name), ped), PAT), es['tracks']),
+                        *extra_pos[i % len(extra_pos)])
+                self.blocks.append(gb)
+                mv = next((v for v in melody_voices if v.slot == name), None)
+                col = {(0, es['note_col']): mv.column_events(arrange, bar, total)} if mv else {}
+                self.blocks.append(set_data(set_name(self.MPE, '_x0001_pe3', ped),
+                                            build_blob_mt(name, '00', [es['note_col']],
+                                                          es['tracks'], col)))
+                self.editors.append(ped)
+                self.seqs.append((name, [(0, total, '00')]))
+        bad = [v.slot for v in melody_voices if v.slot not in extra_names]
+        if bad:
+            raise ValueError('Melody slot(s) %s have no Song.synth() registration' % bad)
+
         # ---- Presetter (optional) ----
         if s._presets:
-            items = [(slot, idx) for slot, idx in s._presets.items() if slot in used_synths]
+            valid = used_synths | set(extra_names)
+            items = [(slot, idx) for slot, idx in s._presets.items() if slot in valid]
             ped = self.pe()
             targets = [slot for slot, _ in items]
             ev = {(i, 0): [(i, idx)] for i, (_, idx) in enumerate(items)}
@@ -417,8 +515,8 @@ class _Compiler:
             conns += self._bus('DrumBus', PAT, total, (-0.95, -0.3),
                                [(d, db_to_amp(s._mix[d]) if d in s._mix else 16384) for d in drum_used],
                                dest=dest)
-        if used_synths:
-            order_syn = [v.slot for v in synth_voices]
+        if used_synths or extra_names:
+            order_syn = [v.slot for v in synth_voices] + extra_names
             conns += self._bus('SynthBus', PAT, total, (-0.55, -0.3),
                                [(slot, db_to_amp(s._mix[slot]) if slot in s._mix else 16384)
                                 for slot in order_syn],
@@ -428,7 +526,7 @@ class _Compiler:
                                          s._limiter['ceiling'], s._limiter['isp'])
 
         # ---- finalise ----
-        seq_order = (['Master'] + drum_used + [v.slot for v in synth_voices]
+        seq_order = (['Master'] + drum_used + [v.slot for v in synth_voices] + extra_names
                      + [v.slot + 'Ctrl' for v in synth_voices]
                      + (['Presets'] if s._presets else []) + ['DrumBus', 'SynthBus']
                      + (['Limit'] if s._limiter else []))
@@ -443,8 +541,8 @@ class _Compiler:
 
     def _bus(self, name, PAT, total, pos, inputs, dest='Master'):
         ped = self.pe()
-        gb = set_param(set_patterns(set_editor(set_name(self.GAIN, 'PGainMul', name), ped), PAT),
-                       'Amp', 16384)
+        gb = set_input_tracks(set_name(self.GAIN, 'PGainMul', name), len(inputs))
+        gb = set_param(set_patterns(set_editor(gb, ped), PAT), 'Amp', 16384)
         for ch, (src, amp) in enumerate(inputs):
             if amp != 16384:
                 gb = set_param_track(gb, 'Amp', ch, amp)

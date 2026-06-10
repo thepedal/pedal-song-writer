@@ -4,9 +4,9 @@ import os, re, sys, base64, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'src'))
 
-from rebuzz import (Song, Chords, Arp, Drums, validate, decode_blob,
+from rebuzz import (Song, Chords, Arp, Drums, Melody, validate, decode_blob,
                     Scale, parse_note, chord_code, arp_mode, steps_to_rows, db_to_amp)
-from rebuzz.blocks import machine_blocks, lib_of
+from rebuzz.blocks import machine_blocks, lib_of, name_of
 
 
 # --- theory ------------------------------------------------------------------
@@ -213,6 +213,65 @@ def test_voice_stays_active_not_cut():
                 lead_offs = sorted({r for col in d['patterns'].get('00', {}).values()
                                     for r, v in col if v == 255})
     assert lead_offs == [0, 384]                          # silent I's only; nothing between X and Y
+
+
+def _melody_song():
+    s = Song('M', bpm=90, tpb=8, key='A', scale='blues')
+    s.section('Verse', ['A', 'A', 'D', 'E']); s.section('Chorus', ['D', 'D', 'A', 'E'])
+    s.add(Chords('Pad', octave=4, chord='dom7'))
+    s.synth('Lead2', 'Pedal FM', note_col=42, tracks=1)
+    s.add(Melody('Lead2', octave=5, grid=16, phrases={
+        'Verse': [(0, 'A5', 2), (4, 'C6', 2), (8, 'E5', 4)]}))   # silent in Chorus
+    s.arrange(['Verse', 'Chorus', 'Verse']); s.presets(Lead2=15)
+    return s
+
+
+def test_melody_synth_spliced_and_routed():
+    xml = _melody_song().compile()
+    assert validate(xml).ok
+    # the FM machine is present under the requested name
+    assert any(lib_of(b) == 'Pedal FM' and name_of(b) == 'Lead2' for b in machine_blocks(xml))
+    # routed to the SynthBus on the channel after the synthref slots
+    conns = re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S)
+    lead2 = [c for c in conns if re.search(r'<Source>Lead2</Source>', c)]
+    assert lead2 and re.search(r'<Destination>SynthBus</Destination>', lead2[0])
+
+
+def test_melody_notes_in_note_column_only():
+    xml = _melody_song().compile()
+    for b in machine_blocks(xml):
+        if lib_of(b) == 'Modern Pattern Editor':
+            m = re.search(r'<Data>([A-Za-z0-9+/=]+)</Data>', b)
+            d = m and decode_blob(base64.b64decode(m.group(1)))
+            if d and d.get('mname') == 'Lead2':
+                cols = sorted(c for (t, c), es in d['patterns']['00'].items() if es)
+                assert cols == [42]                          # notes only in FM's note column
+                ons = [v for col in d['patterns']['00'].values() for r, v in col if v != 255]
+                assert len(ons) == 6                         # 3 verse notes x 2 verse placements
+
+
+def test_bus_grows_to_input_count():
+    # SynthBus carries Pad + Lead2 = 2 inputs -> Input TrackCount must match
+    xml = _melody_song().compile()
+    sb = [b for b in machine_blocks(xml) if re.search(r'<Name>SynthBus</Name>', b)][0]
+    ig = re.search(r'<ParameterGroup>\s*<Type>Input</Type>.*?</ParameterGroup>', sb, re.S).group(0)
+    tc = int(re.search(r'<TrackCount>(\d+)</TrackCount>', ig).group(1))
+    nin = len([c for c in re.findall(r'<MachineConnection>.*?</MachineConnection>', xml, re.S)
+               if re.search(r'<Destination>SynthBus</Destination>', c)])
+    assert tc == nin == 2
+    amp = [p for p in re.findall(r'<Parameter>.*?</Parameter>', ig, re.S) if '<Name>Amp</Name>' in p][0]
+    assert sorted(int(t) for t in re.findall(r'<Track>(\d+)</Track>', amp)) == [0, 1]
+
+
+def test_melody_slot_needs_registration():
+    s = Song('X', bpm=90, tpb=8, key='A', scale='blues')
+    s.section('Verse', ['A', 'A', 'D', 'E'])
+    s.add(Melody('Ghost', phrases={'Verse': [(0, 'A5', 2)]}))   # no Song.synth('Ghost', ...)
+    s.arrange(['Verse'])
+    try:
+        s.compile(); assert False, 'expected ValueError for unregistered Melody slot'
+    except ValueError:
+        pass
 
 
 if __name__ == '__main__':

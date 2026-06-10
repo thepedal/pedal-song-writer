@@ -153,13 +153,14 @@ Format-notes quick index: §§1–9 format & assembly · §10 Limani design ·
 
 **Done:** byte-exact format model · the `rebuzz` library · a composition DSL ·
 structural + loop-safety validation · measurement-driven gain-staging · a master
-chain (buses → limiter → Master) · a 34-machine catalog spliceable on demand.
+chain (buses → limiter → Master) · a 34-machine catalog spliceable on demand ·
+a **real melodic lead** (direct-note `Melody` voice on a synth spliced in via
+`Song.synth()`, e.g. Pedal FM) routed through a bus that sizes itself to its inputs.
 
 **Open (roughly in leverage order):**
-- A **real melodic lead** programmed directly into Faze-R / FM / Add-R (vs the
-  current Pedal-Chord arp) — the biggest single musical upgrade.
 - **Serial FX** chains now that reverbs/delays/EQ/compressors are catalogued.
-- **Per-section voicing** overrides and a **direct-note lead voice** in the DSL.
+- **Per-section voicing** overrides for the chord/arp voices.
 - **`compose(spec)`** — fold `rig()` + the DSL into a one-call commission entry point.
 - Add the four machines still missing from `MachineRef`: **M1, PeerCtrl, LFO, Muter**.
-- Fold the limiter into the DSL (`Song.limiter(...)`).
+- Polyphonic / multi-track direct melodies (chords or harmony lines), and
+  per-note velocity, on top of the current monophonic `Melody`.

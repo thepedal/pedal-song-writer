@@ -1353,13 +1353,18 @@ Scales include major/minor and the modes plus hijaz, blues, and the pentatonics.
   is a hit. Length must divide the bar (`tpb*4` rows). `'x...x...x...x...'` on a
   32-row bar → rows 0, 8, 16, 24.
 - **Voices** — `Chords(slot, octave, chord, rhythm='x', sections=None)` (block
-  chords struck on the rhythm), `Arp(slot, octave, chord, mode, speed, octaves,
-  swing, sections)` (one root per bar + arp config), `Drums({slot: stepstr |
-  {section: stepstr}})`. `sections=` limits a voice to named sections.
-- **`Song`** — `section(name, roots)`, `add(voice)`, `arrange([names...])`
-  (start bars + `LoopEnd`/`SongEnd` computed for you), `mix(**dB)` (per-slot trim
-  on the bus, dB→amp), `presets(**{slot: index})`, then `compile()` →
-  validated xml (or `write(path)`).
+  chords struck on the rhythm; `rhythm` may be a per-section dict), `Arp(slot,
+  octave, chord, mode, speed, octaves, swing, sections)` (one root per bar + arp
+  config), `Drums({slot: stepstr | {section: stepstr}}, swing, subdivision)`, and
+  `Melody(slot, octave, phrases, grid, sections)` — a real monophonic line of
+  pitched note-ons/offs written straight into a synth (no Pedal Chord; §20).
+  `sections=` limits a voice to named sections.
+- **`Song`** — `section(name, roots)`, `add(voice)`, `synth(name, library,
+  note_col, tracks)` (register an extra synth from `MachineRef` to host a
+  `Melody`; §20), `arrange([names...])` (start bars + `LoopEnd`/`SongEnd` computed
+  for you), `mix(**dB)` (per-slot trim on the bus, dB→amp), `presets(**{slot:
+  index})`, `limiter(ceiling, isp)` (§19), then `compile()` → validated xml (or
+  `write(path)`).
 
 The compiler releases each control-driven target wherever it falls silent — a
 note-off on the target's own pattern plus a §12.9.1 stop pattern on its Pedal
@@ -1369,9 +1374,9 @@ example: `src/build_dsl_demo.py` (a short A-blues — arp bass, block pad, compe
 stabs, a swung chorus-only lead, a per-section-keyed kit, a pad trim, staggered
 presets).
 
-Out of scope for now (planned): per-section *rhythm* changes for a chord voice,
-a direct note-programmed lead (not via a Pedal Chord), and a `compose(spec)`
-wrapper. Tests: `tests/test_dsl.py`.
+Out of scope for now (planned): per-section *voicing* overrides for a chord
+voice, serial FX chains, polyphonic/velocity direct melodies, and a
+`compose(spec)` wrapper. Tests: `tests/test_dsl.py`.
 
 ## 18. Measurement-driven mixing (`rebuzz.mix`)
 
@@ -1439,3 +1444,55 @@ helper in `build_lastcall.py` and the `dest=` argument added to `gain_bus()`
 make the bus → limiter → Master chain reusable. For more loudness/glue, lower
 Threshold below Output for `Output−Threshold` dB of makeup (e.g. Threshold −3,
 Output −1 → +2 dB).
+
+## 20. A real melodic lead — direct notes + an extra synth (`Melody`, `Song.synth`)
+
+Every voice up to here drives a synth indirectly: a **Pedal Chord** reads root
+notes and plays the chord/arp, while the synth's own editor stays empty (just
+the §12.9 release note-offs). A *real* melodic line is the opposite — pitched
+note-ons and note-offs written **straight into the synth's pattern**, no control
+machine. Two pieces make this work in the DSL.
+
+**1. An extra synth, spliced from `MachineRef`.** The four DSL slots (Bass/Lead/
+Pad/Comp) are fixed by `synthref`, so a *fifth* synth has to come from somewhere.
+`Song.synth(name, library, note_col, tracks=1)` registers one; the compiler
+splices it from `refs/MachineRef.bmxml` by Library (the cardinal rule still holds
+— never fabricate a `<Machine>`), renames it, attaches a fresh Modern Pattern
+Editor, positions it, sequences it whole-song, routes it to the **SynthBus**, and
+makes it eligible for `mix()` and `presets()` like any built-in slot. `note_col`
+is the machine's note column from the catalog (Pedal FM = 42, Faze-R = 67, …).
+
+**2. A `Melody` voice.** `Melody(slot, octave, phrases, grid=16, sections=None)`
+holds, per section, a list of `(step, note, length)` in grid units (16th notes by
+default → 16 steps/bar). `note` is a token: `'A5'`, `'C#6'`, `'Eb5'`, or bare
+`'A'` (uses the voice's `octave`). `column_events()` resolves the phrases over
+the **arrangement** into `(row, value)` events — so a phrase written once plays at
+every placement of that section (the Last Call verse line lands at both verses
+automatically).
+
+**Monophonic note-offs.** On a mono synth a fresh note-on cuts the previous note,
+so note-offs are emitted **only** where they're actually needed: a rest after a
+note, a phrase end, or the start of a section where the lead is silent. Any
+note-off that would collide with the next note-on is dropped (the retrigger
+handles it) and offs past song-end are clamped — giving clean legato runs and a
+loop-safe line (it never drones, even though `Melody` isn't a Pedal-Chord target
+and so isn't covered by validation check 8, §12.9.1). Because the lead writes its
+own releases, the only loop-safety obligation is that the last note releases
+before song-end and silent sections open with a note-off — both automatic.
+
+**Buses size to their inputs.** A `Pedal Gain Multi`'s per-connection faders live
+in its `<Type>Input</Type>` group, with one `<Value><Track>k</Track>…` per channel
+and a group `<TrackCount>`. The spliced template was saved with 4 inputs, so a
+5th synth channel needs the group **grown**: `blocks.set_input_tracks(block, n)`
+rebuilds the Input group to exactly `n` tracks (existing fader values kept, new
+ones filled from `<DefValue>` = unity) and sets `<TrackCount> = n`. `gain_bus()`/
+the DSL `_bus()` now call it with `len(inputs)`, so the bus always matches its
+connection count — for any number of inputs, not just four.
+
+**Last Call's Lead2** is a Pedal FM (note col 42, mono) on preset *Lead Bright*
+(FM bank index 15), routed to SynthBus channel 4. It plays an A-blues line —
+palette A C D E♭ E G with chord-tone colour (F♯ over D7, G♯ over E7, B in the
+bridge) and the ♭3/♭5 blue notes up high — that **carries the verses** (where the
+arp lead rests), **climbs into the bridge** alongside the arp for a two-lead
+climax, and **resolves in the outro**, sitting out the choruses so the two leads
+never crowd each other. See `Melody`/`Song.synth` in `src/build_lastcall.py`.

@@ -6282,9 +6282,857 @@
       <IsBypassed>false</IsBypassed>
     </Machine>
     <Machine>
-      <Library>Pedal Presetter</Library>
-      <Data>AqsCAADvu788P3htbCB2ZXJzaW9uPSIxLjAiIGVuY29kaW5nPSJ1dGYtOCI/Pg0KPFByZXNldHRlclN0YXRlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiPg0KICA8VGFyZ2V0cz4NCiAgICA8c3RyaW5nPkJhc3M8L3N0cmluZz4NCiAgICA8c3RyaW5nPlBhZDwvc3RyaW5nPg0KICAgIDxzdHJpbmc+TGVhZDwvc3RyaW5nPg0KICAgIDxzdHJpbmc+Q29tcDwvc3RyaW5nPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICA8L1RhcmdldHM+DQo8L1ByZXNldHRlclN0YXRlPg==</Data>
+      <Library>Pedal FM</Library>
+      <Data>AgAAAAA=</Data>
       <EditorMachine>_x0001_pe14</EditorMachine>
+      <Name>Lead2</Name>
+      <Patterns>
+        <Pattern>
+          <Name>00</Name>
+          <Length>1536</Length>
+          <Columns />
+        </Pattern>
+      </Patterns>
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Algorithm</Name>
+              <Description>Algorithm</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>7</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Output</Name>
+              <Description>Master_x0020_output_x0020_level.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>8</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Voices</Name>
+              <Description>Maximum_x0020_simultaneous_x0020_voices.</Description>
+              <MinValue>1</MinValue>
+              <MaxValue>16</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>8</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>7</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Ratio</Name>
+              <Description>Op1_x0020_Ratio</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>7</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Detune</Name>
+              <Description>Op1_x0020_Detune</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Level</Name>
+              <Description>Op1_x0020_Level</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>4</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Attack</Name>
+              <Description>Op1_x0020_Attack</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>4</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Decay</Name>
+              <Description>Op1_x0020_Decay</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Sustain</Name>
+              <Description>Op1_x0020_Sustain</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>40</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Release</Name>
+              <Description>Op1_x0020_Release</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>40</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>7</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Ratio</Name>
+              <Description>Op2_x0020_Ratio</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>7</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Detune</Name>
+              <Description>Op2_x0020_Detune</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>80</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Level</Name>
+              <Description>Op2_x0020_Level</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>80</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>4</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Attack</Name>
+              <Description>Op2_x0020_Attack</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>4</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Decay</Name>
+              <Description>Op2_x0020_Decay</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Sustain</Name>
+              <Description>Op2_x0020_Sustain</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>40</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_Release</Name>
+              <Description>Op2_x0020_Release</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>40</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>15</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Ratio</Name>
+              <Description>Op3_x0020_Ratio</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>15</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Detune</Name>
+              <Description>Op3_x0020_Detune</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>70</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Level</Name>
+              <Description>Op3_x0020_Level</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>70</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>4</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Attack</Name>
+              <Description>Op3_x0020_Attack</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>4</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Decay</Name>
+              <Description>Op3_x0020_Decay</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Sustain</Name>
+              <Description>Op3_x0020_Sustain</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>40</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_Release</Name>
+              <Description>Op3_x0020_Release</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>40</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>7</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Ratio</Name>
+              <Description>Op4_x0020_Ratio</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>7</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Detune</Name>
+              <Description>Op4_x0020_Detune</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>127</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Level</Name>
+              <Description>Op4_x0020_Level</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>127</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>4</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Attack</Name>
+              <Description>Op4_x0020_Attack</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>4</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>60</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Decay</Name>
+              <Description>Op4_x0020_Decay</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>60</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>110</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Sustain</Name>
+              <Description>Op4_x0020_Sustain</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>110</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>50</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_Release</Name>
+              <Description>Op4_x0020_Release</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>50</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_Feedback</Name>
+              <Description>Self-feedback_x0020_on_x0020_Op1._x0020_0_x0020__x003D__x0020_pure_x0020_sine_x002C__x0020_high_x0020_values_x0020_approach_x0020_a_x0020_saw.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>32</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Compound_x0020_Mod</Name>
+              <Description>Compound_x0020_modulator_x0020_strength._x0020_32_x0020__x003D__x0020_tuneful_x0020__x0028_default_x0029__x002C__x0020_127_x0020__x003D__x0020_classic_x0020_noisy.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>32</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Glide</Name>
+              <Description>Portamento_x0020_time._x0020_Voice_x0020_must_x0020_already_x0020_be_x0020_sounding_x0020_for_x0020_glide_x0020_to_x0020_engage_x0020__x0028_legato_x0029_.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>60</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Rate</Name>
+              <Description>LFO_x0020_rate_x002C__x0020_log_x0020_scale._x0020__x007E_0.05_x0020_Hz_x0020_to_x0020__x007E_30_x0020_Hz.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>60</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Shape</Name>
+              <Description>_x0030__x003D_Sine_x002C__x0020_1_x003D_Triangle_x002C__x0020_2_x003D_Square_x002C__x0020_3_x003D_Saw_x002C__x0020_4_x003D_Sample_x0026_Hold.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>4</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Pitch</Name>
+              <Description>Pitch_x0020_LFO_x0020_depth._x0020_Max_x0020__x00B1_1_x0020_semitone_x0020_at_x0020_127.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Mod</Name>
+              <Description>Level_x0020_LFO_x0020_depth._x0020_Modulates_x0020_carrier_x0020_amplitude_x0020_AND_x0020_modulator_x0020_depth_x0020__x0028_timbre_x0020__x002B__x0020_tremolo_x0029_.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op1_x0020_VelSens</Name>
+              <Description>Velocity_x0020_sensitivity_x0020_for_x0020_Op1_x0020_level._x0020_High_x0020_values_x0020_brighten_x0020_harder_x0020_hits_x0020_when_x0020_Op1_x0020_is_x0020_a_x0020_modulator.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op2_x0020_VelSens</Name>
+              <Description>Velocity_x0020_sensitivity_x0020_for_x0020_Op2_x0020_level.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op3_x0020_VelSens</Name>
+              <Description>Velocity_x0020_sensitivity_x0020_for_x0020_Op3_x0020_level.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Op4_x0020_VelSens</Name>
+              <Description>Velocity_x0020_sensitivity_x0020_for_x0020_Op4_x0020_level.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Note</Type>
+              <Name>Note</Name>
+              <Description>Note_x0020_to_x0020_play_x0020_on_x0020_this_x0020_voice_x0020__x0028_one_x0020_voice_x0020_per_x0020_track_x0029_.</Description>
+              <MinValue>1</MinValue>
+              <MaxValue>156</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>127</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Velocity</Name>
+              <Description>Per-track_x0020_velocity_x0020_0_x2013_127._x0020_Sticky:_x0020_persists_x0020_for_x0020_subsequent_x0020_notes.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>127</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>127</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Generator</Type>
+      <X>0.45</X>
+      <Y>0.25</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Modern Pattern Editor</Library>
+      <Data>/wFyCgAAAQAAADAwAAQAAAAEAAAAKwAAAExlYWQyAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIAAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyAAMAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIABAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyAAYAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIABwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgAIAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyAAkAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIACgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgALAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyAAwAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIADQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgAOAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyAA8AAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIAEAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgARAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyABIAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIAEwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgAUAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyABUAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDIAFgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMgAXAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyABgAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAA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</Data>
+      <Name>_x0001_pe14</Name>
+      <Patterns />
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Switch</Type>
+              <Name>Dummy</Name>
+              <Description>Dummy</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Generator</Type>
+      <X>0</X>
+      <Y>0</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Pedal Presetter</Library>
+      <Data>AqgCAADvu788P3htbCB2ZXJzaW9uPSIxLjAiIGVuY29kaW5nPSJ1dGYtOCI/Pg0KPFByZXNldHRlclN0YXRlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiPg0KICA8VGFyZ2V0cz4NCiAgICA8c3RyaW5nPkJhc3M8L3N0cmluZz4NCiAgICA8c3RyaW5nPlBhZDwvc3RyaW5nPg0KICAgIDxzdHJpbmc+TGVhZDwvc3RyaW5nPg0KICAgIDxzdHJpbmc+Q29tcDwvc3RyaW5nPg0KICAgIDxzdHJpbmc+TGVhZDI8L3N0cmluZz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICAgIDxzdHJpbmcgeHNpOm5pbD0idHJ1ZSIgLz4NCiAgICA8c3RyaW5nIHhzaTpuaWw9InRydWUiIC8+DQogICAgPHN0cmluZyB4c2k6bmlsPSJ0cnVlIiAvPg0KICA8L1RhcmdldHM+DQo8L1ByZXNldHRlclN0YXRlPg==</Data>
+      <EditorMachine>_x0001_pe15</EditorMachine>
       <Name>Presets</Name>
       <Patterns>
         <Pattern>
@@ -6348,6 +7196,10 @@
                   <Track>3</Track>
                   <Value>255</Value>
                 </Value>
+                <Value>
+                  <Track>4</Track>
+                  <Value>255</Value>
+                </Value>
               </Values>
               <Type>Byte</Type>
               <Name>Preset</Name>
@@ -6359,7 +7211,7 @@
               <DefValue>0</DefValue>
             </Parameter>
           </Parameters>
-          <TrackCount>4</TrackCount>
+          <TrackCount>5</TrackCount>
         </ParameterGroup>
       </ParameterGroups>
       <Attributes />
@@ -6378,8 +7230,8 @@
     </Machine>
     <Machine>
       <Library>Modern Pattern Editor</Library>
-      <Data>/wHNAAAAAQAAADAwAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAAAAAAAAQAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAEAAAAAAQAAAPAAAAApAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAIAAAAAAQAAAOABAAAsAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAMAAAAAAQAAANACAAAcAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe14</Name>
+      <Data>/wH6AAAAAQAAADAwAAQAAAAEAAAABQAAAFByZXNldHMAAAAAAAAAAAAAAQAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAEAAAAAAQAAAPAAAAApAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAIAAAAAAQAAAOABAAAsAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAMAAAAAAQAAANACAAAcAAAABAAAAAQAAAAEAAAABAAAAFByZXNldHMAAAAAAAQAAAAAAQAAAMADAAAPAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe15</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -6455,7 +7307,7 @@
     <Machine>
       <Library>Pedal Gain Multi</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe15</EditorMachine>
+      <EditorMachine>_x0001_pe16</EditorMachine>
       <Name>DrumBus</Name>
       <Patterns>
         <Pattern>
@@ -6684,7 +7536,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wFBAQAAAQAAADAwAAQAAAAEAAAACAAAAERydW1CdXMAAAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABEcnVtQnVzAAEAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAARHJ1bUJ1cwACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAERydW1CdXMAAwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABEcnVtQnVzAAQAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAARHJ1bUJ1cwAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAERydW1CdXMABgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABEcnVtQnVzAAcAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAA</Data>
-      <Name>_x0001_pe15</Name>
+      <Name>_x0001_pe16</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -6760,7 +7612,7 @@
     <Machine>
       <Library>Pedal Gain Multi</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe16</EditorMachine>
+      <EditorMachine>_x0001_pe17</EditorMachine>
       <Name>SynthBus</Name>
       <Patterns>
         <Pattern>
@@ -6791,6 +7643,10 @@
                   <Track>3</Track>
                   <Value>16384</Value>
                 </Value>
+                <Value>
+                  <Track>4</Track>
+                  <Value>16384</Value>
+                </Value>
               </Values>
               <Type>Word</Type>
               <Name>Amp</Name>
@@ -6819,6 +7675,10 @@
                   <Track>3</Track>
                   <Value>16384</Value>
                 </Value>
+                <Value>
+                  <Track>4</Track>
+                  <Value>16384</Value>
+                </Value>
               </Values>
               <Type>Word</Type>
               <Name>Pan</Name>
@@ -6830,7 +7690,7 @@
               <DefValue>16384</DefValue>
             </Parameter>
           </Parameters>
-          <TrackCount>4</TrackCount>
+          <TrackCount>5</TrackCount>
         </ParameterGroup>
         <ParameterGroup>
           <Type>Global</Type>
@@ -6989,7 +7849,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wFJAQAAAQAAADAwAAQAAAAEAAAACAAAAFN5bnRoQnVzAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMAAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABTeW50aEJ1cwACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFN5bnRoQnVzAAMAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMABAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABTeW50aEJ1cwAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAFN5bnRoQnVzAAYAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAU3ludGhCdXMABwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAAA=</Data>
-      <Name>_x0001_pe16</Name>
+      <Name>_x0001_pe17</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -7065,7 +7925,7 @@
     <Machine>
       <Library>Pedal Limit</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe17</EditorMachine>
+      <EditorMachine>_x0001_pe18</EditorMachine>
       <Name>Limit</Name>
       <Patterns>
         <Pattern>
@@ -7180,7 +8040,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wGCAAAAAQAAADAwAAQAAAAEAAAAAwAAAExpbWl0AAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGltaXQAAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMaW1pdAACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe17</Name>
+      <Name>_x0001_pe18</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -7476,6 +8336,18 @@
         </Event>
       </Events>
       <Machine>Lead</Machine>
+      <IsDisabled>false</IsDisabled>
+    </Sequence>
+    <Sequence>
+      <Events>
+        <Event>
+          <Time>0</Time>
+          <Type>PlayPattern</Type>
+          <Span>1536</Span>
+          <Pattern>00</Pattern>
+        </Event>
+      </Events>
+      <Machine>Lead2</Machine>
       <IsDisabled>false</IsDisabled>
     </Sequence>
     <Sequence>
@@ -7834,6 +8706,14 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
+      <Source>_x0001_pe15</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
       <Source>Kick</Source>
       <Destination>DrumBus</Destination>
       <Amp>16384</Amp>
@@ -7874,7 +8754,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe15</Source>
+      <Source>_x0001_pe16</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -7914,6 +8794,14 @@
       <DestinationChannel>3</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
+      <Source>Lead2</Source>
+      <Destination>SynthBus</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>4</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
       <Source>SynthBus</Source>
       <Destination>Limit</Destination>
       <Amp>16384</Amp>
@@ -7922,7 +8810,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe16</Source>
+      <Source>_x0001_pe17</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -7938,7 +8826,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe17</Source>
+      <Source>_x0001_pe18</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
