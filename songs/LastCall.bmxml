@@ -8079,7 +8079,7 @@
               <Values>
                 <Value>
                   <Track>0</Track>
-                  <Value>652</Value>
+                  <Value>821</Value>
                 </Value>
               </Values>
               <Type>Word</Type>
@@ -8261,10 +8261,355 @@
       <IsBypassed>false</IsBypassed>
     </Machine>
     <Machine>
-      <Library>Pedal Plate</Library>
+      <Library>Pedal Filter</Library>
       <Data>AgAAAAA=</Data>
       <EditorMachine>_x0001_pe20</EditorMachine>
-      <Name>CompFx</Name>
+      <Name>CompFx1</Name>
+      <Patterns>
+        <Pattern>
+          <Name>00</Name>
+          <Length>1536</Length>
+          <Columns />
+        </Pattern>
+      </Patterns>
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>16384</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>1</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Mode</Name>
+              <Description>Filter_x0020_mode._x0020__x0020_Comb:_x0020_Cutoff_x0020__x003D__x0020_fundamental_x0020_freq_x002C__x0020_Slope_x0020__x003D__x0020_FIR_x002F_IIR.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>4</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Slope</Name>
+              <Description>SVF:_x0020_12_x0020_dB_x002F_oct_x0020__x0028_2-pole_x0029__x0020_or_x0020_24_x0020_dB_x002F_oct_x0020__x0028_4-pole_x0029_._x0020__x0020_Comb:_x0020_FIR_x0020__x003D__x0020_flanging_x002C__x0020_IIR_x0020__x003D__x0020_resonator_x002F_string.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>110</Value>
+                </Value>
+              </Values>
+              <Type>Word</Type>
+              <Name>Cutoff</Name>
+              <Description>Filter_x0020_cutoff_x0020_Hz._x0020__x0020_Comb:_x0020_comb_x0020_fundamental_x0020_frequency.</Description>
+              <MinValue>20</MinValue>
+              <MaxValue>18000</MaxValue>
+              <NoValue>65535</NoValue>
+              <Flags>State</Flags>
+              <DefValue>2000</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Resonance</Name>
+              <Description>Filter_x0020_Q._x0020__x0020_Comb:_x0020_feedback_x0020_amount_x0020__x0028_0_x0020__x003D__x0020_none_x002C__x0020_100_x0020__x003D__x0020_near-infinite_x0020_ring_x0029_.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Drive</Name>
+              <Description>Pre-filter_x0020_tanh_x0028__x0029__x0020_saturation_x0020_with_x0020_2x_x0020_oversampling._x0020__x0020_0_x0020__x003D__x0020_clean.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Wave</Name>
+              <Description>LFO_x0020_waveform._x0020__x0020_S_x0026_H:_x0020_random_x0020_step_x002C__x0020_L_x002F_R_x0020_update_x0020_independently.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>5</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>20</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Rate</Name>
+              <Description>LFO_x0020_speed_x0020__x0028_free_x0020_mode_x0029_:_x0020_0_x0020__x003D__x0020_stopped_x002C__x0020_100_x0020__x2248__x0020_10_x0020_Hz_x002C__x0020_200_x0020__x2248__x0020_20_x0020_Hz.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>200</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>20</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Tempo_x0020_Sync</Name>
+              <Description>Lock_x0020_LFO_x0020_to_x0020_host_x0020_tempo_x0020__x0028_uses_x0020_LFO_x0020_Div_x0029_.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>4</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Div</Name>
+              <Description>Note_x0020_division_x0020_when_x0020_Tempo_x0020_Sync_x0020__x003D__x0020_On.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>13</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>4</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>LFO_x0020_Depth</Name>
+              <Description>Sweep_x0020_width:_x0020_0_x0020__x003D__x0020_none_x002C__x0020_100_x0020__x003D__x0020__x00B1_4_x0020_octaves.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Phase_x0020_Offset</Name>
+              <Description>L_x002F_R_x0020_LFO_x0020_phase_x0020_difference._x0020__x0020_90_x0020__x003D__x0020_quadrature_x002C__x0020_180_x0020__x003D__x0020_opposed._x0020__x0020_Comb:_x0020_drives_x0020_stereo_x0020_chorus_x002F_flanger.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>180</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>100</Value>
+                </Value>
+              </Values>
+              <Type>Byte</Type>
+              <Name>Mix</Name>
+              <Description>Wet_x002F_dry_x0020_blend:_x0020_0_x0020__x003D__x0020_dry_x002C__x0020_100_x0020__x003D__x0020_fully_x0020_filtered.</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>100</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>100</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Effect</Type>
+      <X>0.1</X>
+      <Y>0.08</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Modern Pattern Editor</Library>
+      <Data>/wHVAQAAAQAAADAwAAQAAAAEAAAADAAAAENvbXBGeDEAAAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngxAAEAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MQACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeDEAAwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngxAAQAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MQAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeDEABgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngxAAcAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MQAIAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeDEACQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngxAAoAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MQALAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe20</Name>
+      <Patterns />
+      <ParameterGroups>
+        <ParameterGroup>
+          <Type>Input</Type>
+          <Parameters>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Amp</Name>
+              <Description>Amp_x0020__x0028_0_x003D_0_x0025__x002C__x0020_4000_x003D_100_x0025__x002C__x0020_FFFE_x003D__x007E_400_x0025__x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>65534</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+            <Parameter>
+              <Values />
+              <Type>Word</Type>
+              <Name>Pan</Name>
+              <Description>Pan_x0020__x0028_0_x003D_Left_x002C__x0020_4000_x003D_Center_x002C__x0020_8000_x003D_Right_x0029_</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>32768</MaxValue>
+              <NoValue>0</NoValue>
+              <Flags>State</Flags>
+              <DefValue>16384</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Global</Type>
+          <Parameters>
+            <Parameter>
+              <Values>
+                <Value>
+                  <Track>0</Track>
+                  <Value>0</Value>
+                </Value>
+              </Values>
+              <Type>Switch</Type>
+              <Name>Dummy</Name>
+              <Description>Dummy</Description>
+              <MinValue>0</MinValue>
+              <MaxValue>1</MaxValue>
+              <NoValue>255</NoValue>
+              <Flags>State</Flags>
+              <DefValue>0</DefValue>
+            </Parameter>
+          </Parameters>
+          <TrackCount>1</TrackCount>
+        </ParameterGroup>
+        <ParameterGroup>
+          <Type>Track</Type>
+          <Parameters />
+          <TrackCount>0</TrackCount>
+        </ParameterGroup>
+      </ParameterGroups>
+      <Attributes />
+      <Type>Generator</Type>
+      <X>0</X>
+      <Y>0</Y>
+      <IsMuted>false</IsMuted>
+      <MIDIInputChannel>-1</MIDIInputChannel>
+      <OverrideLatency>-1</OverrideLatency>
+      <OversampleFactor>1</OversampleFactor>
+      <IsWireless>false</IsWireless>
+      <BaseOctave>4</BaseOctave>
+      <ParameterWindowVisible>false</ParameterWindowVisible>
+      <GUIWindowVisible>false</GUIWindowVisible>
+      <IsBypassed>false</IsBypassed>
+    </Machine>
+    <Machine>
+      <Library>Pedal Plate</Library>
+      <Data>AgAAAAA=</Data>
+      <EditorMachine>_x0001_pe21</EditorMachine>
+      <Name>CompFx2</Name>
       <Patterns>
         <Pattern>
           <Name>00</Name>
@@ -8470,7 +8815,7 @@
       <Attributes />
       <Type>Effect</Type>
       <X>0.1</X>
-      <Y>0.08</Y>
+      <Y>0.22000000000000003</Y>
       <IsMuted>false</IsMuted>
       <MIDIInputChannel>-1</MIDIInputChannel>
       <OverrideLatency>-1</OverrideLatency>
@@ -8483,8 +8828,8 @@
     </Machine>
     <Machine>
       <Library>Modern Pattern Editor</Library>
-      <Data>/wFdAQAAAQAAADAwAAQAAAAEAAAACQAAAENvbXBGeAAAAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAABAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAADAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAAEAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAAGAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAAHAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeAAIAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe20</Name>
+      <Data>/wFmAQAAAQAAADAwAAQAAAAEAAAACQAAAENvbXBGeDIAAAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngyAAEAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeDIAAwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngyAAQAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MgAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAENvbXBGeDIABgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wRngyAAcAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEZ4MgAIAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
+      <Name>_x0001_pe21</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -8560,7 +8905,7 @@
     <Machine>
       <Library>Pedal Gain</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe21</EditorMachine>
+      <EditorMachine>_x0001_pe22</EditorMachine>
       <Name>CompGain</Name>
       <Patterns>
         <Pattern>
@@ -8577,7 +8922,7 @@
               <Values>
                 <Value>
                   <Track>0</Track>
-                  <Value>16384</Value>
+                  <Value>13014</Value>
                 </Value>
               </Values>
               <Type>Word</Type>
@@ -8685,7 +9030,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wGLAAAAAQAAADAwAAQAAAAEAAAAAwAAAENvbXBHYWluAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAQ29tcEdhaW4AAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABDb21wR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe21</Name>
+      <Name>_x0001_pe22</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -8761,7 +9106,7 @@
     <Machine>
       <Library>Pedal Hallverb</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe22</EditorMachine>
+      <EditorMachine>_x0001_pe23</EditorMachine>
       <Name>LeadFx</Name>
       <Patterns>
         <Pattern>
@@ -8966,7 +9311,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wE5AQAAAQAAADAwAAQAAAAEAAAACAAAAExlYWRGeAAAAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAABAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAADAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAAEAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAAGAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWRGeAAHAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe22</Name>
+      <Name>_x0001_pe23</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -9042,7 +9387,7 @@
     <Machine>
       <Library>Pedal Gain</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe23</EditorMachine>
+      <EditorMachine>_x0001_pe24</EditorMachine>
       <Name>LeadGain</Name>
       <Patterns>
         <Pattern>
@@ -9059,7 +9404,7 @@
               <Values>
                 <Value>
                   <Track>0</Track>
-                  <Value>16384</Value>
+                  <Value>10338</Value>
                 </Value>
               </Values>
               <Type>Word</Type>
@@ -9167,7 +9512,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wGLAAAAAQAAADAwAAQAAAAEAAAAAwAAAExlYWRHYWluAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZEdhaW4AAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe23</Name>
+      <Name>_x0001_pe24</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -9243,7 +9588,7 @@
     <Machine>
       <Library>Pedal Dly PCM41</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe24</EditorMachine>
+      <EditorMachine>_x0001_pe25</EditorMachine>
       <Name>Lead2Fx</Name>
       <Patterns>
         <Pattern>
@@ -9448,7 +9793,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wFBAQAAAQAAADAwAAQAAAAEAAAACAAAAExlYWQyRngAAAAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMkZ4AAEAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDJGeAACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyRngAAwAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMkZ4AAQAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGVhZDJGeAAFAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyRngABgAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMZWFkMkZ4AAcAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAA</Data>
-      <Name>_x0001_pe24</Name>
+      <Name>_x0001_pe25</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -9524,7 +9869,7 @@
     <Machine>
       <Library>Pedal Gain</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe25</EditorMachine>
+      <EditorMachine>_x0001_pe26</EditorMachine>
       <Name>Lead2Gain</Name>
       <Patterns>
         <Pattern>
@@ -9541,7 +9886,7 @@
               <Values>
                 <Value>
                   <Track>0</Track>
-                  <Value>16384</Value>
+                  <Value>5813</Value>
                 </Value>
               </Values>
               <Type>Word</Type>
@@ -9649,7 +9994,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wGOAAAAAQAAADAwAAQAAAAEAAAAAwAAAExlYWQyR2FpbgAAAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyR2FpbgABAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAExlYWQyR2FpbgACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe25</Name>
+      <Name>_x0001_pe26</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -9725,7 +10070,7 @@
     <Machine>
       <Library>Pedal Limit</Library>
       <Data>AgAAAAA=</Data>
-      <EditorMachine>_x0001_pe26</EditorMachine>
+      <EditorMachine>_x0001_pe27</EditorMachine>
       <Name>Limit</Name>
       <Patterns>
         <Pattern>
@@ -9840,7 +10185,7 @@
     <Machine>
       <Library>Modern Pattern Editor</Library>
       <Data>/wGCAAAAAQAAADAwAAQAAAAEAAAAAwAAAExpbWl0AAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAEAAAATGltaXQAAQAAAAAAAAAAAAAAAAQAAAAEAAAABAAAAAQAAABMaW1pdAACAAAAAAAAAAAAAAAABAAAAAQAAAAEAAAABAAAAA==</Data>
-      <Name>_x0001_pe26</Name>
+      <Name>_x0001_pe27</Name>
       <Patterns />
       <ParameterGroups>
         <ParameterGroup>
@@ -10411,7 +10756,19 @@
           <Pattern>00</Pattern>
         </Event>
       </Events>
-      <Machine>CompFx</Machine>
+      <Machine>CompFx1</Machine>
+      <IsDisabled>false</IsDisabled>
+    </Sequence>
+    <Sequence>
+      <Events>
+        <Event>
+          <Time>0</Time>
+          <Type>PlayPattern</Type>
+          <Span>1536</Span>
+          <Pattern>00</Pattern>
+        </Event>
+      </Events>
+      <Machine>CompFx2</Machine>
       <IsDisabled>false</IsDisabled>
     </Sequence>
     <Sequence>
@@ -10700,7 +11057,7 @@
     <MachineConnection>
       <Source>PadFx</Source>
       <Destination>PadGain</Destination>
-      <Amp>652</Amp>
+      <Amp>821</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>0</DestinationChannel>
@@ -10723,7 +11080,7 @@
     </MachineConnection>
     <MachineConnection>
       <Source>Comp</Source>
-      <Destination>CompFx</Destination>
+      <Destination>CompFx1</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
@@ -10738,9 +11095,25 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>CompFx</Source>
-      <Destination>CompGain</Destination>
+      <Source>CompFx1</Source>
+      <Destination>CompFx2</Destination>
       <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>_x0001_pe21</Source>
+      <Destination>Master</Destination>
+      <Amp>16384</Amp>
+      <Pan>16384</Pan>
+      <SourceChannel>0</SourceChannel>
+      <DestinationChannel>0</DestinationChannel>
+    </MachineConnection>
+    <MachineConnection>
+      <Source>CompFx2</Source>
+      <Destination>CompGain</Destination>
+      <Amp>13014</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>0</DestinationChannel>
@@ -10754,7 +11127,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe21</Source>
+      <Source>_x0001_pe22</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -10770,7 +11143,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe22</Source>
+      <Source>_x0001_pe23</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -10780,7 +11153,7 @@
     <MachineConnection>
       <Source>LeadFx</Source>
       <Destination>LeadGain</Destination>
-      <Amp>16384</Amp>
+      <Amp>10338</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>0</DestinationChannel>
@@ -10794,7 +11167,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe23</Source>
+      <Source>_x0001_pe24</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -10810,7 +11183,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe24</Source>
+      <Source>_x0001_pe25</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -10820,7 +11193,7 @@
     <MachineConnection>
       <Source>Lead2Fx</Source>
       <Destination>Lead2Gain</Destination>
-      <Amp>16384</Amp>
+      <Amp>5813</Amp>
       <Pan>16384</Pan>
       <SourceChannel>0</SourceChannel>
       <DestinationChannel>0</DestinationChannel>
@@ -10834,7 +11207,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe25</Source>
+      <Source>_x0001_pe26</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>
@@ -10850,7 +11223,7 @@
       <DestinationChannel>0</DestinationChannel>
     </MachineConnection>
     <MachineConnection>
-      <Source>_x0001_pe26</Source>
+      <Source>_x0001_pe27</Source>
       <Destination>Master</Destination>
       <Amp>16384</Amp>
       <Pan>16384</Pan>

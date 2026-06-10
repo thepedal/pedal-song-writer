@@ -12,9 +12,12 @@ through json here to prove it), so a song can be stored, diffed, or generated.
 build_lastcall_lowlevel.py remains the hand-built byte-exact reference the DSL
 was generalised from. The grooves here are per-section step-strings (no per-bar
 fills yet); the kit swings its off-beat eighths (swing=67), reproducing the hand
-build's hat rows. The -28 dB pad trim comes from the stem analysis (the pad
-clips at source); presets stagger one per row; the limiter is a -1 dBFS
-true-peak safety ceiling.
+build's hat rows. The mix trims (Pad -26, Comp -2, Lead -4, Lead2 -9; Bass at
+unity) come from measuring the per-synth post-gain stems: Lead2 was ~14 dB over
+the bass and dominating, Lead ran hot from its hall, and the pad sits back as a
+bed. The Comp also gets a high-pass (Pedal Filter, ~110 Hz) ahead of its plate
+to clear the sub that clashed with the bass. Presets stagger one per row; the
+limiter is a -1 dBFS true-peak safety ceiling.
 """
 import os
 import json
@@ -100,9 +103,11 @@ LASTCALL_SPEC = {
     'fx': {
         'Pad':   {'library': 'Pedal Chorus',
                   'params': {'Rate': 18, 'Depth': 40, 'Spread': 90, 'Mix': 40}},
-        'Comp':  {'library': 'Pedal Plate',
-                  'params': {'Mix': 22, 'PreDelayMs': 10, 'Decay': 45,
-                             'Damping': 55, 'Size': 80, 'LowCut': 15}},
+        'Comp':  [{'library': 'Pedal Filter',    # high-pass first: clear the sub/low that clashes with the bass
+                   'params': {'Mode': 1, 'Cutoff': 110, 'Resonance': 0}},
+                  {'library': 'Pedal Plate',
+                   'params': {'Mix': 22, 'PreDelayMs': 10, 'Decay': 45,
+                              'Damping': 55, 'Size': 80, 'LowCut': 15}}],
         'Lead':  {'library': 'Pedal Hallverb',
                   'params': {'Pre Delay': 25, 'Decay Time': 1800, 'Room Size': 70,
                              'Damping': 45, 'Wet Level': 35}},
@@ -110,7 +115,9 @@ LASTCALL_SPEC = {
                   'params': {'Time Mode': 0, 'Delay': 130, 'Feedback': 18,
                              'Mix': 24, 'HF Damp': 35}},
     },
-    'mix': {'Pad': -28},
+    'mix': {'Pad': -26, 'Comp': -2, 'Lead': -4, 'Lead2': -9},   # balance pass from the stem analysis:
+    #   Lead2 was ~14 dB over the bass and dominating; Lead hot from its hall; Comp peaks tamed;
+    #   pad bed up 2 dB. Bass stays at unity (the foundation; can't boost past 0 dB).
     'presets': {'Bass': 0, 'Pad': 41, 'Lead': 44, 'Comp': 28, 'Lead2': 15},
     'limiter': {'ceiling': -1.0, 'isp': True},
 }
